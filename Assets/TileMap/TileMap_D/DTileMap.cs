@@ -1,65 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.SocialPlatforms.GameCenter;
 
-public class DTileMap {
-	
-	/*protected class DTile {
-		bool isWalkable = false;
-		int tileGraphicId = 0;
-		string name = "Unknown";
-	}
-	
-	List<DTile> tileTypes;
-	
-	void InitTiles() {
-		tileType[1].name = "Floor";
-		tileType[1].isWalkable = true;
-		tileType[1].tileGraphicId = 1;
-		tileType[1].damagePerTurn = 0;
-	}*/
-	
-	protected class DIsland {
-		public int left;
-		public int top;
-		public int width;
-		public int height;
-		
-		public bool isConnected=false;
-		
-		public int right {
-			get {return left + width - 1;}
-		}
-		
-		public int bottom {
-			get { return top + height - 1; }
-		}
-		
-		public int center_x {
-			get { return left + width/2; }
-		}
-		
-		public int center_y {
-			get { return top + height/2; }
-		}
-		
-		public bool CollidesWith(DIsland other) {
-			if( left > other.right-1 )
-				return false;
-			
-			if( top > other.bottom-1 )
-				return false;
-			
-			if( right < other.left+1 )
-				return false;
-			
-			if( bottom < other.top+1 )
-				return false;
-			
-			return true;
-		}
-		
-		
-	}
+public partial class DTileMap {
 	
 	int size_x;
 	int size_y;
@@ -93,14 +36,11 @@ public class DTileMap {
 		int maxFails = 10;
 		
 		while(islands.Count < 10) {
-			int rsx = Random.Range(4,14);
-			int rsy = Random.Range(4,10);
-			
-			r = new DIsland();
-			r.left = Random.Range(0, size_x - rsx);
-			r.top = Random.Range(0, size_y-rsy);
-			r.width = rsx;
-			r.height = rsy;
+			int r_sx = Random.Range(10, size_x - 10);
+			int r_sy = Random.Range(10 ,size_y - 10);
+			int r_sr = Random.Range(2, 5);
+			r = new DIsland(r_sx, r_sy, r_sr);
+
 			
 			if(!IslandCollides(r)) {			
 				islands.Add (r);
@@ -116,7 +56,7 @@ public class DTileMap {
 		foreach(DIsland r2 in islands) {
 			MakeIsland(r2);
 		}
-		MakeShallows();
+		//MakeShallows();
 	}
 	
 	bool IslandCollides(DIsland r) {
@@ -125,6 +65,14 @@ public class DTileMap {
 				return true;
 			}
 		}
+
+		//Make sure radius stays within bounds of map
+		if (r.center_x + r.radius > size_x - 1 || r.center_x - r.radius < 0)
+			return true;
+
+		if (r.center_y + r.radius > size_y || r.center_y - r.radius < 0)
+			return true;
+
 		
 		return false;
 	}
@@ -136,18 +84,7 @@ public class DTileMap {
 	//TODO:
 	// - different shapes and types depending on map biome
 	void MakeIsland(DIsland r) {
-		
-		for(int x=0; x < r.width; x++) {
-			for(int y=0; y < r.height; y++){
-				if(x==0 || x == r.width-1 || y==0 || y == r.height-1) {
-					map_data[r.left+x,r.top+y] = 2;
-				}
-				else {
-					map_data[r.left+x,r.top+y] = 1;
-				}
-			}
-		}
-		
+		r.CreateIsland(map_data, r.center_x, r.center_y, DIsland.ENTRY_DIR.center, 0);
 	}
 	
 	
