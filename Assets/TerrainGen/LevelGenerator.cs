@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+//Code from: https://gamedevacademy.org/complete-guide-to-procedural-level-generation-in-unity-part-1/
 public class LevelGenerator : MonoBehaviour
 {
 	[SerializeField]
