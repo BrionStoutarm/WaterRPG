@@ -4,7 +4,7 @@ using UnityEngine;
 //Code from: https://gamedevacademy.org/complete-guide-to-procedural-level-generation-in-unity-part-1/
 
 [System.Serializable]
-public class TerrainType {
+public class DevTerrainType {
 	public string name;
 	public float height;
 	public Color color;
@@ -13,6 +13,6 @@ public class TerrainType {
 public class TerrainGeneration : MonoBehaviour {
 
 	[SerializeField]
-	private TerrainType[] terrainTypes;
+	private DevTerrainType[] terrainTypes;
 
 }
