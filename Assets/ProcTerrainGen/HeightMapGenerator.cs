@@ -11,16 +11,27 @@ public static class HeightMapGenerator {
 
         float minValue = float.MaxValue;
         float maxValue = float.MinValue;
-
-        for(int i = 0; i < width; i++) {
+        
+        
+        for (int i = 0; i < width; i++) {
             for(int j = 0; j < height; j++) {
-                values[i, j] += heightCurve_threadsafe.Evaluate(values[i, j]) * settings.heightMultiplier;
-
+                values[i, j] *= heightCurve_threadsafe.Evaluate(values[i, j]) * settings.heightMultiplier;
+ 
                 if(values[i,j] > maxValue) {
                     maxValue = values[i, j];
                 }
                 if(values[i,j] < minValue) {
                     minValue = values[i, j];
+                }
+            }
+        }
+
+
+        if (settings.useFalloff) {
+            float[,] falloffMap = FalloffGenerator.GenerateFalloffMap(width);
+            for (int j = 0; j < width; j++) {
+                for (int i = 0; i < height; i++) {
+                    values[i, j] = Mathf.Clamp(values[i, j] - falloffMap[i, j] * settings.heightMultiplier, minValue, maxValue);
                 }
             }
         }
