@@ -13,7 +13,7 @@ public class MapPreview : MonoBehaviour {
 
 	public MeshSettings meshSettings;
 	public HeightMapSettings heightMapSettings;
-	public TextureData textureData;
+	public TextureSettings textureData;
 
 	public Material terrainMaterial;
 
