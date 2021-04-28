@@ -8,6 +8,7 @@ public class ResourceMapGenerator : MonoBehaviour
     public ResourceMapSettings mapSettings;
     public Transform parent;
 
+    const int max_resources = 25;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,19 +22,19 @@ public class ResourceMapGenerator : MonoBehaviour
     }
 
     public void PopulateTerrainWithResources(TerrainChunk terrainChunk) {
-        HeightMap heightMap = terrainChunk.GetHeightMap();
-        int size = terrainChunk.size;
+        int vertCount = 0;
 
         Mesh mesh = terrainChunk.mesh;
         foreach(Vector3 vert in mesh.vertices) {
             float height = vert.y;
             for (int r = 0; r < mapSettings.availableResources.Length; r++) {
                 if (height >= mapSettings.availableResources[r].MinSpawnHeight && height <= mapSettings.availableResources[r].MaxSpawnHeight) {
-                    if (Random.Range(0f, 10f) % mapSettings.resourceAvailability > 0) {
+                    if (vertCount % 20 == 0 ) {
                         SpawnResource(vert , mapSettings.availableResources[r]);
                     }
                 }
             }
+            vertCount++;
         }
 
         //for(int i = 0; i < size; i++) {
