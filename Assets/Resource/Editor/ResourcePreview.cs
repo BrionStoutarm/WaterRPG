@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Resource : MonoBehaviour
+public class ResourceEditor : MonoBehaviour
 {
-    enum ResourceType {
-        Wood, 
-        Metal,
-        Cloth
-    }
-
     // Start is called before the first frame update
     void Start()
     {

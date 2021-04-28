@@ -48,7 +48,6 @@ public class TerrainChunk {
 
 		meshObject.transform.position = new Vector3(position.x, 0, position.y);
 		meshObject.transform.parent = parent;
-		SetVisible(false);
 
 		lodMeshes = new LODMesh[detailLevels.Length];
 		for (int i = 0; i < detailLevels.Length; i++) {
@@ -64,10 +63,30 @@ public class TerrainChunk {
 	}
 
 	public void Load() {
-		ThreadedDataRequester.RequestData(() => HeightMapGenerator.GenerateHeightMap(meshSettings.numVerticesPerLine, meshSettings.numVerticesPerLine, heightMapSettings, sampleCentre), OnHeightMapReceived);
+		//ThreadedDataRequester.RequestData(() => HeightMapGenerator.GenerateHeightMap(meshSettings.numVerticesPerLine, meshSettings.numVerticesPerLine, heightMapSettings, sampleCentre), OnHeightMapReceived);
+		this.heightMap = HeightMapGenerator.GenerateHeightMap(meshSettings.numVerticesPerLine, meshSettings.numVerticesPerLine, heightMapSettings, sampleCentre);
+		meshFilter.mesh = lodMeshes[0].GetMesh(heightMap, meshSettings);
+		//OnHeightMapReceived();
+		Debug.Log("Terrain Chunk loaded");
 	}
 
+	public Mesh mesh {
+		get {
+			return meshFilter.mesh;
+		}
+	}
 
+	public int size {
+		get {
+			return meshSettings.numVerticesPerLine;
+		}
+	}
+	
+	public float meshScale {
+		get {
+			return meshSettings.meshScale;
+		}
+	}
 
 	void OnHeightMapReceived(object heightMapObject) {
 		this.heightMap = (HeightMap)heightMapObject;
@@ -86,10 +105,10 @@ public class TerrainChunk {
 	//Will need to refactor this i think
 	public void UpdateTerrainChunk() {
 		if (heightMapReceived) {
+			Debug.Log("update terrain chunk");
 			float viewerDstFromNearestEdge = Mathf.Sqrt(bounds.SqrDistance(viewerPosition));
 
-			bool wasVisible = IsVisible();
-			bool visible = viewerDstFromNearestEdge <= maxViewDst;
+			bool visible = true;
 
 			if (visible) {
 				int lodIndex = 0;
@@ -117,13 +136,13 @@ public class TerrainChunk {
 
 			}
 
-			if (wasVisible != visible) {
+			//if (wasVisible != visible) {
 
-				SetVisible(visible);
-				//if (onVisibilityChanged != null) {
-				//	onVisibilityChanged(this, visible);
-				//}
-			}
+			//	SetVisible(visible);
+			//	//if (onVisibilityChanged != null) {
+			//	//	onVisibilityChanged(this, visible);
+			//	//}
+			//}
 		}
 	}
 
@@ -154,6 +173,10 @@ public class TerrainChunk {
 		return meshObject.activeSelf;
 	}
 
+	public HeightMap GetHeightMap() {
+		return heightMap;
+	}
+
 }
 
 class LODMesh {
@@ -178,6 +201,11 @@ class LODMesh {
 	public void RequestMesh(HeightMap heightMap, MeshSettings meshSettings) {
 		hasRequestedMesh = true;
 		ThreadedDataRequester.RequestData(() => MeshGenerator.GenerateTerrainMesh(heightMap.values, meshSettings, lod), OnMeshDataReceived);
+	}
+
+	public Mesh GetMesh(HeightMap heightMap, MeshSettings meshSettings) {
+		Mesh newMesh = MeshGenerator.GenerateTerrainMesh(heightMap.values, meshSettings, lod).CreateMesh();
+		return newMesh;
 	}
 
 }

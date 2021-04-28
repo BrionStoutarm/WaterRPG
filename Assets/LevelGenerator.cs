@@ -17,18 +17,28 @@ using UnityEngine;
 public class LevelGenerator : MonoBehaviour
 {
     TerrainGenerator terrainGenerator;
+    ResourceMapGenerator resourceMapGenerator;
 
     public Transform playerStartLoc;
     public Transform viewer;
 
+    TerrainChunk terrainChunk;
+
     void Start() {
         terrainGenerator = FindObjectOfType<TerrainGenerator>();
+        resourceMapGenerator = FindObjectOfType<ResourceMapGenerator>();
         GenerateLevel(playerStartLoc, transform, viewer);
     }
 
-   //will take more params
+    void Update() {
+    }
+
+    //will take more params
     public Level GenerateLevel(Transform playerStart, Transform parent, Transform viewer) {
-        TerrainChunk terrainChunk = terrainGenerator.GenerateTerrainChunk(); //pass in biome and other area info to affect the terrain generated
+        terrainChunk = terrainGenerator.GenerateTerrainChunk(); //pass in biome and other area info to affect the terrain generated
+        Debug.Log("Terrain Chunk done!");
+        resourceMapGenerator.PopulateTerrainWithResources(terrainChunk);//^^
+        Debug.Log("Populating Resources done!");
         Level newLevel = new Level(playerStart, terrainChunk);
         return newLevel;
     }

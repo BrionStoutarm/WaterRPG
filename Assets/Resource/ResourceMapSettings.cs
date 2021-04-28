@@ -6,8 +6,7 @@ using UnityEngine;
 public class ResourceMapSettings : UpdatableData
 {
     //Biome biome;
-
+    public float resourceAvailability;
     public Resource[] availableResources;
-
 
 }
