@@ -6,10 +6,8 @@ public class Level
 {
     TerrainChunk terrainChunk;
     //public ResourceMap resourceMap;
-    Transform playerStartPosition;
 
-    public Level (Transform playerStartPosition, TerrainChunk terrainChunk) {
-        this.playerStartPosition = playerStartPosition;
+    public Level (TerrainChunk terrainChunk) {
         this.terrainChunk = terrainChunk;
         terrainChunk.Load();
      
