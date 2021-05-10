@@ -7,10 +7,11 @@ using UnityEngine;
 public class BoatMovement : MonoBehaviour
 {
     // Movement speed in units per second.
-    public float speed = 1.0F;
+    public float lerpSpeed = 5.0F;
 
     // How far the boat moves for each movement action
-    public int moveDistance = 100;
+    // - affected by boat speed
+    public int moveDistanceModifier = 10;
 
     // Time when the movement started.
     private float startTime;
@@ -28,55 +29,56 @@ public class BoatMovement : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-
-        //if (isMoving) {
-        //    Debug.Log("Boat moving");
-        //    // Distance moved equals elapsed time times speed..
-        //    float distCovered = (Time.time - startTime) * speed;
-
-        //    // Fraction of journey completed equals current distance divided by total distance.
-        //    float fractionOfJourney = distCovered / journeyLength;
-
-        //    // Set our position as a fraction of the distance between the markers.
-        //    transform.position = Vector3.Lerp(startPosition, endPosition, fractionOfJourney);
-
-        //    if (transform.position == endPosition) {
-        //        isMoving = false;
-        //    }
-        //}
-
         //will remove later when we flesh out the control scheme
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            GoForward();
+        if(!isMoving) {
+            if (Input.GetKeyDown(KeyCode.Space)) {
+                GoForward();
+            }
+
+            if(Input.GetKeyDown(KeyCode.LeftArrow)) {
+                TurnLeft();
+            }
+
+            if(Input.GetKeyDown(KeyCode.RightArrow)) {
+                TurnRight();
+            }
         }
 
-        if(Input.GetKeyDown(KeyCode.LeftArrow)) {
-            TurnLeft();
+        if (isMoving) {
+            Debug.Log("Boat moving");
+            // Distance moved equals elapsed time times speed..
+            float distCovered = (Time.time - startTime) * lerpSpeed;
+
+            // Fraction of journey completed equals current distance divided by total distance.
+            float fractionOfJourney = distCovered / journeyLength;
+
+            // Set our position as a fraction of the distance between the markers.
+            transform.position = Vector3.Lerp(startPosition, endPosition, fractionOfJourney);
+
+            if (transform.position == endPosition) {
+                isMoving = false;
+            }
         }
 
-        if(Input.GetKeyDown(KeyCode.RightArrow)) {
-            TurnRight();
-        }
     }
 
     public void GoForward() {
         startTime = Time.time;
-        endPosition = transform.position + (transform.forward * moveDistance);
+        endPosition = (transform.position + transform.forward) * moveDistanceModifier;
         journeyLength = Vector3.Distance(transform.position, endPosition);
 
         Debug.DrawLine(transform.position, endPosition, Color.red, 100f);
 
-        Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cube), endPosition, Quaternion.identity);
 
         isMoving = true;
     }
 
     public void TurnLeft() {
-        transform.Rotate(0, -90f, 0);
+        transform.Rotate(0, -25f, 0);
     }
 
     public void TurnRight() {
-        transform.Rotate(0, 90f, 0);
+        transform.Rotate(0, 25f, 0);
     }
 
     void OnDrawGizmos() {
