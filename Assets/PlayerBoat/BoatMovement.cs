@@ -7,7 +7,7 @@ using UnityEngine;
 public class BoatMovement : MonoBehaviour
 {
     // Movement speed in units per second.
-    public float lerpSpeed = 5.0F;
+    public float lerpSpeed = 10.0F;
 
     // How far the boat moves for each movement action
     // - affected by boat speed
