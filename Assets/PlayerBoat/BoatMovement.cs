@@ -56,6 +56,7 @@ public class BoatMovement : MonoBehaviour
             transform.position = Vector3.Lerp(startPosition, endPosition, fractionOfJourney);
 
             if (transform.position == endPosition) {
+                Debug.Log("Boat stopped");
                 isMoving = false;
             }
         }
@@ -63,14 +64,18 @@ public class BoatMovement : MonoBehaviour
     }
 
     public void GoForward() {
-        startTime = Time.time;
-        endPosition = (transform.position + transform.forward) * moveDistanceModifier;
-        journeyLength = Vector3.Distance(transform.position, endPosition);
+        if (!isMoving)
+        {
+            startTime = Time.time;
+            startPosition = transform.position;
+            endPosition = startPosition + (transform.forward * moveDistanceModifier);
+            journeyLength = Vector3.Distance(transform.position, endPosition);
+            Debug.DrawLine(transform.position, endPosition, Color.red, 100f);
 
-        Debug.DrawLine(transform.position, endPosition, Color.red, 100f);
 
-
-        isMoving = true;
+            isMoving = true;
+        }
+        
     }
 
     public void TurnLeft() {
