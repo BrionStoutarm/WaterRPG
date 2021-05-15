@@ -102,9 +102,13 @@ public class BoatMovement : MonoBehaviour
             {
                 Debug.Log("No Wind Gauge");
             }
-            endPosition = startPosition + (transform.forward * moveDistanceModifier);
-            journeyLength = Vector3.Distance(transform.position, endPosition);
-            Debug.DrawLine(transform.position, endPosition, Color.red, 100f);
+            endPosition = startPosition;
+            if (moveDistanceModifier != 0f)
+            {
+                endPosition += (transform.forward * moveDistanceModifier);
+                journeyLength = Vector3.Distance(transform.position, endPosition);
+                Debug.DrawLine(transform.position, endPosition, Color.red, 100f);
+            }
 
 
             advancingTurn = true;
@@ -133,8 +137,9 @@ public class BoatMovement : MonoBehaviour
     {
         float deltaAngle = Math.Abs(windGauge.NormalizedAngle() - NormalizedAngle()) % 360;
         deltaAngle = deltaAngle > 180f ? 360f - deltaAngle : deltaAngle;
-        Debug.Log(string.Format("Wind: {0}, Boat: {1}, Delta: {2}", windGauge.NormalizedAngle(), NormalizedAngle(), deltaAngle));
+        //Debug.Log(string.Format("Wind: {0}, Boat: {1}, Delta: {2}", windGauge.NormalizedAngle(), NormalizedAngle(), deltaAngle));
         float windEff = (180f - deltaAngle) / 180;
+        //Debug.Log(windEff);
         return windEff;
     }
 
