@@ -6,12 +6,26 @@ using UnityEngine;
 
 public class BoatMovement : MonoBehaviour
 {
+    private WindGauge windGauge; //TEMP: hack for now, access through game manager
     // Movement speed in units per second.
     public float lerpSpeed = 10.0F;
 
-    // How far the boat moves for each movement action
-    // - affected by boat speed
-    public int moveDistanceModifier = 10;
+
+    public float oarSpeed = 2.0f;
+    public float sailEfficiency = 1.0f;
+
+    public enum MovementSetting
+    {
+        OARS_BACK,
+        FULL_STOP,
+        OARS_FORWARD,
+        SAIL_QUARTER,
+        SAIL_HALF,
+        SAIL_FULL,
+        MOVEMENT_COUNT //Leave last
+    }
+
+    public MovementSetting movementSetting = MovementSetting.FULL_STOP;
 
     // Time when the movement started.
     private float startTime;
@@ -20,19 +34,32 @@ public class BoatMovement : MonoBehaviour
     private float journeyLength;
 
     private Vector3 startPosition, endPosition;
-    private bool isMoving = false;
+    private bool advancingTurn = false;
+
+    
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        windGauge = FindObjectOfType<WindGauge>(); //TEMP
     }
 
     // Update is called once per frame
     void Update() {
         //will remove later when we flesh out the control scheme
-        if(!isMoving) {
+        if (!advancingTurn) {
             if (Input.GetKeyDown(KeyCode.Space)) {
-                GoForward();
+                AdvanceTurn(); //This should be called from a gameManager class
+            }
+
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                IncreaseMovementSetting();
+            }
+
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                DecreaseMovementSetting();
             }
 
             if(Input.GetKeyDown(KeyCode.LeftArrow)) {
@@ -44,8 +71,7 @@ public class BoatMovement : MonoBehaviour
             }
         }
 
-        if (isMoving) {
-            Debug.Log("Boat moving");
+        if (advancingTurn) {
             // Distance moved equals elapsed time times speed..
             float distCovered = (Time.time - startTime) * lerpSpeed;
 
@@ -56,34 +82,138 @@ public class BoatMovement : MonoBehaviour
             transform.position = Vector3.Lerp(startPosition, endPosition, fractionOfJourney);
 
             if (transform.position == endPosition) {
-                Debug.Log("Boat stopped");
-                isMoving = false;
+                advancingTurn = false;
             }
         }
 
     }
 
-    public void GoForward() {
-        if (!isMoving)
+    public void AdvanceTurn()
+    {
+        if (!advancingTurn)
         {
             startTime = Time.time;
             startPosition = transform.position;
+            float moveDistanceModifier = oarSpeed * MovementSettingToOarMultiplier(movementSetting);
+            if (windGauge) {
+                moveDistanceModifier += sailEfficiency * MovementSettingToSailMultiplier(movementSetting) * windGauge.m_windSpeed * WindEfficiency();
+            }
+            else
+            {
+                Debug.Log("No Wind Gauge");
+            }
             endPosition = startPosition + (transform.forward * moveDistanceModifier);
             journeyLength = Vector3.Distance(transform.position, endPosition);
             Debug.DrawLine(transform.position, endPosition, Color.red, 100f);
 
 
-            isMoving = true;
+            advancingTurn = true;
         }
-        
     }
 
     public void TurnLeft() {
-        transform.Rotate(0, -25f, 0);
+        transform.Rotate(0, -15f, 0);
     }
 
     public void TurnRight() {
-        transform.Rotate(0, 25f, 0);
+        transform.Rotate(0, 15f, 0);
+    }
+
+    public float NormalizedAngle()
+    {
+        float normalizedAngle = transform.eulerAngles.y % 360;
+        if (normalizedAngle < 0)
+        {
+            normalizedAngle += 360;
+        }
+        return normalizedAngle;
+
+    }
+    public float WindEfficiency()
+    {
+        float deltaAngle = Math.Abs(windGauge.NormalizedAngle() - NormalizedAngle()) % 360;
+        deltaAngle = deltaAngle > 180f ? 360f - deltaAngle : deltaAngle;
+        Debug.Log(string.Format("Wind: {0}, Boat: {1}, Delta: {2}", windGauge.NormalizedAngle(), NormalizedAngle(), deltaAngle));
+        float windEff = (180f - deltaAngle) / 180;
+        return windEff;
+    }
+
+    public float MovementSettingToSailMultiplier(MovementSetting x)
+    {
+        switch (x)
+        {
+            case MovementSetting.SAIL_QUARTER:
+                return .25f;
+            case MovementSetting.SAIL_HALF:
+                return .5f;
+            case MovementSetting.SAIL_FULL:
+                return 1f;
+            default:
+                return 0f;
+        }
+    }
+    public float MovementSettingToOarMultiplier(MovementSetting x)
+    {
+        switch (x)
+        {
+            case MovementSetting.OARS_BACK:
+                return -1f;
+            case MovementSetting.OARS_FORWARD:
+                return 1f;
+            default:
+                return 0f;
+        }
+    }
+
+    public string MovementSettingToString(MovementSetting x)
+    {
+        switch (x)
+        {
+            case MovementSetting.OARS_BACK:
+                return "OARS_BACK";
+            case MovementSetting.FULL_STOP:
+                return "FULL_STOP";
+            case MovementSetting.OARS_FORWARD:
+                return "OARS_FWD";
+            case MovementSetting.SAIL_QUARTER:
+                return "SAIL_Q";
+            case MovementSetting.SAIL_HALF:
+                return "SAIL_H";
+            case MovementSetting.SAIL_FULL:
+                return "SAIL_F";
+            default:
+                return "UNKNOWN";
+        }
+    }
+    public float MovementSettingToWindMultiple(MovementSetting x)
+    {
+        switch (x)
+        {
+            case MovementSetting.SAIL_QUARTER:
+                return .25f;
+            case MovementSetting.SAIL_HALF:
+                return .5f;
+            case MovementSetting.SAIL_FULL:
+                return 1f;
+            default:
+                return 0f;
+        }
+    }
+
+    public void IncreaseMovementSetting()
+    {
+        if (movementSetting < MovementSetting.MOVEMENT_COUNT - 1)
+        {
+            movementSetting++;
+        }
+    }
+
+    public void DecreaseMovementSetting()
+    {
+        if (movementSetting > 0)
+        {
+            movementSetting--;
+        }
     }
 
     void OnDrawGizmos() {
