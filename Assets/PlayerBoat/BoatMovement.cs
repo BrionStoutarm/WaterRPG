@@ -8,11 +8,11 @@ public class BoatMovement : MonoBehaviour
 {
     private GameManager m_gameManager;
     // Movement speed in units per second.
-    public float lerpSpeed = 10.0F;
+    public float m_lerpSpeed = 10.0F;
 
 
-    public float oarSpeed = 2.0f;
-    public float sailEfficiency = 1.0f;
+    public float m_oarSpeed = 2.0f;
+    public float m_sailEfficiency = 1.0f;
 
     public enum MovementSetting
     {
@@ -25,16 +25,16 @@ public class BoatMovement : MonoBehaviour
         MOVEMENT_COUNT //Leave last
     }
 
-    public MovementSetting movementSetting = MovementSetting.FULL_STOP;
+    public MovementSetting m_movementSetting = MovementSetting.FULL_STOP;
 
     // Time when the movement started.
-    private float startTime;
+    private float m_startTime;
 
     // Total distance between the markers.
-    private float journeyLength;
+    private float m_journeyLength;
 
-    private Vector3 startPosition, endPosition;
-    private bool advancingTurn = false;
+    private Vector3 m_startPosition, m_endPosition;
+    private bool m_advancingTurn = false;
 
     
 
@@ -48,7 +48,7 @@ public class BoatMovement : MonoBehaviour
     void Update() {
         if (m_gameManager.Paused())
         {
-            if (advancingTurn)
+            if (m_advancingTurn)
             {
                 TurnMovement();
             }
@@ -61,19 +61,19 @@ public class BoatMovement : MonoBehaviour
 
     private void TurnMovement()
     {
-        if (transform.position == endPosition)
+        if (transform.position == m_endPosition)
         {
-            advancingTurn = false;
+            m_advancingTurn = false;
             return;
         }
         // Distance moved equals elapsed time times speed..
-        float distCovered = (Time.time - startTime) * lerpSpeed;
+        float distCovered = (Time.time - m_startTime) * m_lerpSpeed;
 
         // Fraction of journey completed equals current distance divided by total distance.
-        float fractionOfJourney = distCovered / journeyLength;
+        float fractionOfJourney = distCovered / m_journeyLength;
 
         // Set our position as a fraction of the distance between the markers.
-        transform.position = Vector3.Lerp(startPosition, endPosition, fractionOfJourney);
+        transform.position = Vector3.Lerp(m_startPosition, m_endPosition, fractionOfJourney);
     }
 
     private void LiveMovement()
@@ -92,35 +92,35 @@ public class BoatMovement : MonoBehaviour
 
     public void AdvanceTurn()
     {
-        if (!advancingTurn)
+        if (!m_advancingTurn)
         {
-            startTime = Time.time;
-            startPosition = transform.position;
+            m_startTime = Time.time;
+            m_startPosition = transform.position;
             float speed = MovementSpeed();
 
-            endPosition = startPosition;
+            m_endPosition = m_startPosition;
             if (speed != 0f)
             {
-                endPosition += (transform.forward * speed);
-                journeyLength = Vector3.Distance(transform.position, endPosition);
-                Debug.DrawLine(transform.position, endPosition, Color.red, 100f);
+                m_endPosition += (transform.forward * speed);
+                m_journeyLength = Vector3.Distance(transform.position, m_endPosition);
+                Debug.DrawLine(transform.position, m_endPosition, Color.red, 100f);
             }
 
 
-            advancingTurn = true;
+            m_advancingTurn = true;
         }
     }
 
     public float MovementSpeed()
     {
-        float speed = oarSpeed * MovementSettingToOarMultiplier(movementSetting);
-        speed += sailEfficiency * MovementSettingToSailMultiplier(movementSetting) * m_gameManager.Weather().WindSpeed() * WindEfficiency();
+        float speed = m_oarSpeed * MovementSettingToOarMultiplier(m_movementSetting);
+        speed += m_sailEfficiency * MovementSettingToSailMultiplier(m_movementSetting) * m_gameManager.Weather().WindSpeed() * WindEfficiency();
         return speed;
     }
 
     public bool TurnComplete()
     {
-        return !advancingTurn;
+        return !m_advancingTurn;
     }
 
     public void TurnLeft() {
@@ -215,17 +215,17 @@ public class BoatMovement : MonoBehaviour
 
     public void IncreaseMovementSetting()
     {
-        if (movementSetting < MovementSetting.MOVEMENT_COUNT - 1)
+        if (m_movementSetting < MovementSetting.MOVEMENT_COUNT - 1)
         {
-            movementSetting++;
+            m_movementSetting++;
         }
     }
 
     public void DecreaseMovementSetting()
     {
-        if (movementSetting > 0)
+        if (m_movementSetting > 0)
         {
-            movementSetting--;
+            m_movementSetting--;
         }
     }
 
