@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public WeatherManager m_weatherManager;
     public PlayerBoatControl m_playerBoatControl;
 
+    private bool m_paused = true;
     private bool m_advancingTurn = false;
 
     private static GameManager s_instance;
@@ -44,12 +45,28 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!m_advancingTurn)
+        if (m_advancingTurn)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (m_playerBoat.GetComponent<BoatMovement>().TurnComplete())
             {
-                m_playerBoat.GetComponent<BoatMovement>().AdvanceTurn(); //Need refactoring here to create a Turn sensitive base class
+                m_advancingTurn = false;
             }
+        }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                m_paused ^= true;
+            }
+            if (m_paused)
+            {
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    m_advancingTurn = true;
+                    m_playerBoat.GetComponent<BoatMovement>().AdvanceTurn(); //Need refactoring here to create a Turn sensitive base class
+                }
+            }
+
         }
     }
 
@@ -60,6 +77,11 @@ public class GameManager : MonoBehaviour
     public WeatherManager Weather()
     {
         return m_weatherManager;
+    }
+
+    public bool Paused()
+    {
+        return m_paused;
     }
 
     void ConstructSailIndicator(BoatMovement boat)

@@ -46,9 +46,16 @@ public class BoatMovement : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        if (advancingTurn)
+        if (m_gameManager.Paused())
         {
-            TurnMovement();
+            if (advancingTurn)
+            {
+                TurnMovement();
+            }
+        }
+        else
+        {
+            LiveMovement();
         }
     }
 
@@ -68,19 +75,33 @@ public class BoatMovement : MonoBehaviour
         // Set our position as a fraction of the distance between the markers.
         transform.position = Vector3.Lerp(startPosition, endPosition, fractionOfJourney);
     }
+
+    private void LiveMovement()
+    {
+
+        float speed = MovementSpeed() * Time.deltaTime;
+        if(speed != 0f)
+        {
+            Vector3 newPos = transform.position + (transform.forward * speed);
+            Debug.DrawLine(transform.position, newPos, Color.red, 100f);
+            transform.position = newPos;
+        }
+       
+
+    }
+
     public void AdvanceTurn()
     {
         if (!advancingTurn)
         {
             startTime = Time.time;
             startPosition = transform.position;
-            float moveDistanceModifier = oarSpeed * MovementSettingToOarMultiplier(movementSetting);
-            moveDistanceModifier += sailEfficiency * MovementSettingToSailMultiplier(movementSetting) * m_gameManager.Weather().WindSpeed() * WindEfficiency();
+            float speed = MovementSpeed();
 
             endPosition = startPosition;
-            if (moveDistanceModifier != 0f)
+            if (speed != 0f)
             {
-                endPosition += (transform.forward * moveDistanceModifier);
+                endPosition += (transform.forward * speed);
                 journeyLength = Vector3.Distance(transform.position, endPosition);
                 Debug.DrawLine(transform.position, endPosition, Color.red, 100f);
             }
@@ -88,6 +109,18 @@ public class BoatMovement : MonoBehaviour
 
             advancingTurn = true;
         }
+    }
+
+    public float MovementSpeed()
+    {
+        float speed = oarSpeed * MovementSettingToOarMultiplier(movementSetting);
+        speed += sailEfficiency * MovementSettingToSailMultiplier(movementSetting) * m_gameManager.Weather().WindSpeed() * WindEfficiency();
+        return speed;
+    }
+
+    public bool TurnComplete()
+    {
+        return !advancingTurn;
     }
 
     public void TurnLeft() {
