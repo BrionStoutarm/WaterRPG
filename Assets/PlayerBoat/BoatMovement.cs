@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class BoatMovement : MonoBehaviour
 {
-    private WindGauge windGauge; //TEMP: hack for now, access through game manager
+    private GameManager m_gameManager;
     // Movement speed in units per second.
     public float lerpSpeed = 10.0F;
 
@@ -41,53 +41,33 @@ public class BoatMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        windGauge = FindObjectOfType<WindGauge>(); //TEMP
+        m_gameManager = GameManager.Get();
     }
 
     // Update is called once per frame
     void Update() {
-        //will remove later when we flesh out the control scheme
-        if (!advancingTurn) {
-            if (Input.GetKeyDown(KeyCode.Space)) {
-                AdvanceTurn(); //This should be called from a gameManager class
-            }
-
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                IncreaseMovementSetting();
-            }
-
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                DecreaseMovementSetting();
-            }
-
-            if(Input.GetKeyDown(KeyCode.LeftArrow)) {
-                TurnLeft();
-            }
-
-            if(Input.GetKeyDown(KeyCode.RightArrow)) {
-                TurnRight();
-            }
+        if (advancingTurn)
+        {
+            TurnMovement();
         }
-
-        if (advancingTurn) {
-            // Distance moved equals elapsed time times speed..
-            float distCovered = (Time.time - startTime) * lerpSpeed;
-
-            // Fraction of journey completed equals current distance divided by total distance.
-            float fractionOfJourney = distCovered / journeyLength;
-
-            // Set our position as a fraction of the distance between the markers.
-            transform.position = Vector3.Lerp(startPosition, endPosition, fractionOfJourney);
-
-            if (transform.position == endPosition) {
-                advancingTurn = false;
-            }
-        }
-
     }
 
+    private void TurnMovement()
+    {
+        if (transform.position == endPosition)
+        {
+            advancingTurn = false;
+            return;
+        }
+        // Distance moved equals elapsed time times speed..
+        float distCovered = (Time.time - startTime) * lerpSpeed;
+
+        // Fraction of journey completed equals current distance divided by total distance.
+        float fractionOfJourney = distCovered / journeyLength;
+
+        // Set our position as a fraction of the distance between the markers.
+        transform.position = Vector3.Lerp(startPosition, endPosition, fractionOfJourney);
+    }
     public void AdvanceTurn()
     {
         if (!advancingTurn)
@@ -95,13 +75,8 @@ public class BoatMovement : MonoBehaviour
             startTime = Time.time;
             startPosition = transform.position;
             float moveDistanceModifier = oarSpeed * MovementSettingToOarMultiplier(movementSetting);
-            if (windGauge) {
-                moveDistanceModifier += sailEfficiency * MovementSettingToSailMultiplier(movementSetting) * windGauge.m_windSpeed * WindEfficiency();
-            }
-            else
-            {
-                Debug.Log("No Wind Gauge");
-            }
+            moveDistanceModifier += sailEfficiency * MovementSettingToSailMultiplier(movementSetting) * m_gameManager.Weather().WindSpeed() * WindEfficiency();
+
             endPosition = startPosition;
             if (moveDistanceModifier != 0f)
             {
@@ -135,7 +110,7 @@ public class BoatMovement : MonoBehaviour
     }
     public float WindEfficiency()
     {
-        float deltaAngle = Math.Abs(windGauge.NormalizedAngle() - NormalizedAngle()) % 360;
+        float deltaAngle = Math.Abs(m_gameManager.Weather().NormalizedWindAngle() - NormalizedAngle()) % 360;
         deltaAngle = deltaAngle > 180f ? 360f - deltaAngle : deltaAngle;
         //Debug.Log(string.Format("Wind: {0}, Boat: {1}, Delta: {2}", windGauge.NormalizedAngle(), NormalizedAngle(), deltaAngle));
         float windEff = (180f - deltaAngle) / 180;

@@ -25,4 +25,9 @@ public class FollowCamera : MonoBehaviour
         }
         
     }
+
+    public void Follow(GameObject obj)
+    {
+        m_toFollow = obj;
+    }
 }
