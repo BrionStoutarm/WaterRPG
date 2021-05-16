@@ -6,13 +6,12 @@ using UnityEngine;
 
 public class BoatMovement : MonoBehaviour
 {
-    private GameManager m_gameManager;
-    // Movement speed in units per second.
-    public float m_lerpSpeed = 10.0F;
-
-
     public float m_oarSpeed = 2.0f;
     public float m_sailEfficiency = 1.0f;
+    public float m_rotationSpeed = 90f; //degrees/sec
+
+    private GameManager m_gameManager;
+
 
     public enum MovementSetting
     {
@@ -25,6 +24,14 @@ public class BoatMovement : MonoBehaviour
         MOVEMENT_COUNT //Leave last
     }
 
+    public enum RotationSetting
+    {
+        FORWARD,
+        LEFT,
+        RIGHT
+    }
+
+    public RotationSetting m_rotationSetting = RotationSetting.FORWARD;
     public MovementSetting m_movementSetting = MovementSetting.FULL_STOP;
 
     // Time when the movement started.
@@ -55,6 +62,7 @@ public class BoatMovement : MonoBehaviour
         }
         else
         {
+            LiveRotation();
             LiveMovement();
         }
     }
@@ -66,11 +74,9 @@ public class BoatMovement : MonoBehaviour
             m_advancingTurn = false;
             return;
         }
-        // Distance moved equals elapsed time times speed..
-        float distCovered = (Time.time - m_startTime) * m_lerpSpeed;
 
         // Fraction of journey completed equals current distance divided by total distance.
-        float fractionOfJourney = distCovered / m_journeyLength;
+        float fractionOfJourney = (Time.time - m_startTime) / m_gameManager.m_turnLength;
 
         // Set our position as a fraction of the distance between the markers.
         transform.position = Vector3.Lerp(m_startPosition, m_endPosition, fractionOfJourney);
@@ -89,6 +95,23 @@ public class BoatMovement : MonoBehaviour
        
 
     }
+    private void LiveRotation()
+    {
+        Debug.Log(m_rotationSpeed);
+        switch (m_rotationSetting)
+        {
+            case (RotationSetting.LEFT):
+                //Debug.Log(-m_rotationSpeed * Time.deltaTime);
+                transform.Rotate(0, -m_rotationSpeed * Time.deltaTime, 0);
+                break;
+            case (RotationSetting.RIGHT):
+                //Debug.Log(m_rotationSpeed * Time.deltaTime);
+                transform.Rotate(0, m_rotationSpeed * Time.deltaTime, 0);
+                break;
+            default:
+                return;
+        }
+    }
 
     public void AdvanceTurn()
     {
@@ -101,7 +124,7 @@ public class BoatMovement : MonoBehaviour
             m_endPosition = m_startPosition;
             if (speed != 0f)
             {
-                m_endPosition += (transform.forward * speed);
+                m_endPosition += (transform.forward * speed * m_gameManager.m_turnLength);
                 m_journeyLength = Vector3.Distance(transform.position, m_endPosition);
                 Debug.DrawLine(transform.position, m_endPosition, Color.red, 100f);
             }
@@ -123,12 +146,25 @@ public class BoatMovement : MonoBehaviour
         return !m_advancingTurn;
     }
 
+    public void TurnForward()
+    {
+        m_rotationSetting = RotationSetting.FORWARD;
+    }
+
     public void TurnLeft() {
-        transform.Rotate(0, -15f, 0);
+        if (m_gameManager.Paused())
+        {
+            transform.Rotate(0, -15f, 0);
+        }
+        m_rotationSetting = RotationSetting.LEFT;
     }
 
     public void TurnRight() {
-        transform.Rotate(0, 15f, 0);
+        if (m_gameManager.Paused())
+        {
+            transform.Rotate(0, 15f, 0);
+        }
+        m_rotationSetting = RotationSetting.RIGHT;
     }
 
     public float NormalizedAngle()
