@@ -9,10 +9,11 @@ public class PlayerBoatControl : MonoBehaviour
     public KeyCode m_turnLeft = KeyCode.A;
     public KeyCode m_turnRight = KeyCode.D;
     private BoatMovement m_boat;
+    private GameManager m_gameManager;
     // Start is called before the first frame update
     void Start()
     {
-        
+        m_gameManager = GameManager.Get();
     }
 
     // Update is called once per frame
@@ -30,15 +31,30 @@ public class PlayerBoatControl : MonoBehaviour
                 m_boat.DecreaseMovementSetting();
             }
 
-            if (Input.GetKeyDown(m_turnLeft))
+            if (checkTurnKey(m_turnLeft) == checkTurnKey(m_turnRight))
             {
-                m_boat.TurnLeft();
+                m_boat.TurnForward();
             }
-
-            if (Input.GetKeyDown(m_turnRight))
+            else if (checkTurnKey(m_turnRight))
             {
                 m_boat.TurnRight();
             }
+            else
+            {
+                m_boat.TurnLeft();
+            }
+        }
+    }
+
+    private bool checkTurnKey(KeyCode c)
+    {
+        if (m_gameManager.Paused())
+        {
+            return Input.GetKeyDown(c);
+        }
+        else
+        {
+            return Input.GetKey(c);
         }
     }
 

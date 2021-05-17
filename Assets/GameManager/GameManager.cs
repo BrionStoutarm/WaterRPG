@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     public WeatherManager m_weatherManager;
     public PlayerBoatControl m_playerBoatControl;
 
+    public float m_turnLength = 1.0f;
+
     private bool m_paused = true;
     private bool m_advancingTurn = false;
 
