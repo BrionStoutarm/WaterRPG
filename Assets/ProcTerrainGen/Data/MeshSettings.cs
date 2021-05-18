@@ -13,6 +13,8 @@ public class MeshSettings : UpdatableData {
     public float meshScale = 2.5f;
     public bool useFlatShading;
 
+    public Gradient terrainGradient;
+
     [Range(0, numSupportedChunkSizes - 1)]
     public int chunkSizeIndex;
     [Range(0, numSupportedFlatshadedChunkSizes - 1)]

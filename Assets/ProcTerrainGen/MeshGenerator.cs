@@ -45,8 +45,9 @@ public static class MeshGenerator {
 				Vector2 percent = new Vector2((x - meshSimplificationIncrement) / (float)meshSize, (y - meshSimplificationIncrement) / (float)meshSize);
 				float height = heightMap[x, y];
 				Vector3 vertexPosition = new Vector3((topLeftX + percent.x * meshSizeUnsimplified) * meshSettings.meshScale, height, (topLeftZ - percent.y * meshSizeUnsimplified) * meshSettings.meshScale);
+				Color vertexColor = meshSettings.terrainGradient.Evaluate(height);
 
-				meshData.AddVertex(vertexPosition, percent, vertexIndex);
+				meshData.AddVertex(vertexPosition, percent, vertexIndex, vertexColor);
 
 				if (x < borderedSize - 1 && y < borderedSize - 1) {
 					int a = vertexIndicesMap[x, y];
@@ -73,7 +74,7 @@ public class MeshData {
 	int[] triangles;
 	Vector2[] uvs;
 	Vector3[] bakedNormals;
-
+	Color[] vertexColors;
 	Vector3[] borderVertices;
 	int[] borderTriangles;
 
@@ -88,20 +89,23 @@ public class MeshData {
 		vertices = new Vector3[verticesPerLine * verticesPerLine];
 		uvs = new Vector2[verticesPerLine * verticesPerLine];
 		triangles = new int[(verticesPerLine - 1) * (verticesPerLine - 1) * 6];
+		vertexColors = new Color[verticesPerLine * verticesPerLine];
 
 		borderVertices = new Vector3[verticesPerLine * 4 + 4];
 		borderTriangles = new int[24 * verticesPerLine];
 	}
 
-	public void AddVertex(Vector3 vertexPosition, Vector2 uv, int vertexIndex) {
+	public void AddVertex(Vector3 vertexPosition, Vector2 uv, int vertexIndex, Color color) {
 		if (vertexIndex < 0) {
 			borderVertices[-vertexIndex - 1] = vertexPosition;
 		}
 		else {
 			vertices[vertexIndex] = vertexPosition;
 			uvs[vertexIndex] = uv;
+			vertexColors[vertexIndex] = color;
 		}
 	}
+
 
 	public void AddTriangle(int a, int b, int c) {
 		if (a < 0 || b < 0 || c < 0) {
@@ -204,6 +208,7 @@ public class MeshData {
 		mesh.vertices = vertices;
 		mesh.triangles = triangles;
 		mesh.uv = uvs;
+		mesh.colors = vertexColors;
 		if (useFlatShading) {
 			mesh.RecalculateNormals();
 		}

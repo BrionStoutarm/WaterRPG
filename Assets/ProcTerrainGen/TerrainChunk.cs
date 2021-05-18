@@ -34,6 +34,7 @@ public class TerrainChunk {
 		this.heightMapSettings = mapSettings.heightMapSettings;
 		this.meshSettings = mapSettings.meshSettings;
 		this.viewer = viewer;
+
 		 
 		sampleCentre = coord * meshSettings.meshWorldSize / meshSettings.meshScale;
 		Vector2 position = coord * meshSettings.meshWorldSize;
