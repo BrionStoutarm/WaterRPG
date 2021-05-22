@@ -84,20 +84,36 @@ public class BoatMovement : MonoBehaviour
 
     private void LiveMovement()
     {
-
-        float speed = MovementSpeed() * Time.deltaTime;
-        if(speed != 0f)
+        Vector3 newPos = LiveMovementPosition(m_rotationSetting, m_movementSetting);
+        if (newPos != transform.position)
         {
-            Vector3 newPos = transform.position + (transform.forward * speed);
             Debug.DrawLine(transform.position, newPos, Color.red, 100f);
             transform.position = newPos;
         }
-       
-
     }
+
+    private Vector3 LiveMovementPosition(RotationSetting rot, MovementSetting mov)
+    {
+        Vector3 dirVector = transform.forward;
+        switch (m_rotationSetting)
+        {
+            case (RotationSetting.LEFT):
+                dirVector = Quaternion.Euler(0, -m_rotationSpeed * Time.deltaTime, 0) * dirVector;
+                break;
+            case (RotationSetting.RIGHT):
+                dirVector = Quaternion.Euler(0, m_rotationSpeed * Time.deltaTime, 0) * dirVector;
+                break;
+            default:
+                break;
+        }
+        float speed = MovementSpeed(mov, Quaternion.LookRotation(dirVector).eulerAngles.y) * Time.deltaTime;
+        Vector3 newPos = transform.position + (dirVector * speed);
+        return newPos;
+    }
+
     private void LiveRotation()
     {
-        Debug.Log(m_rotationSpeed);
+        //Debug.Log(m_rotationSpeed);
         switch (m_rotationSetting)
         {
             case (RotationSetting.LEFT):
@@ -119,7 +135,7 @@ public class BoatMovement : MonoBehaviour
         {
             m_startTime = Time.time;
             m_startPosition = transform.position;
-            float speed = MovementSpeed();
+            float speed = MovementSpeed(m_movementSetting, ForwardAngle());
 
             m_endPosition = m_startPosition;
             if (speed != 0f)
@@ -134,10 +150,10 @@ public class BoatMovement : MonoBehaviour
         }
     }
 
-    public float MovementSpeed()
+    public float MovementSpeed(MovementSetting mov, float angle)
     {
-        float speed = m_oarSpeed * MovementSettingToOarMultiplier(m_movementSetting);
-        speed += m_sailEfficiency * MovementSettingToSailMultiplier(m_movementSetting) * m_gameManager.Weather().WindSpeed() * WindEfficiency();
+        float speed = m_oarSpeed * MovementSettingToOarMultiplier(mov);
+        speed += m_sailEfficiency * MovementSettingToSailMultiplier(mov) * m_gameManager.Weather().WindSpeed() * WindEfficiency(angle);
         return speed;
     }
 
@@ -167,28 +183,36 @@ public class BoatMovement : MonoBehaviour
         m_rotationSetting = RotationSetting.RIGHT;
     }
 
+    public Vector3 LivePredictLocation(BoatMovement.RotationSetting rot, MovementSetting mov)
+    {
+        return LiveMovementPosition(rot, mov);
+    }
+
     public void LiveRotationSetting(BoatMovement.RotationSetting rot)
     {
         m_rotationSetting = rot;
     }
 
-    public float NormalizedAngle()
+    public float ForwardAngle()
     {
-        float normalizedAngle = transform.eulerAngles.y % 360;
+        return transform.eulerAngles.y;
+    }
+    public float NormalizeAngle(float angle)
+    {
+        float normalizedAngle = angle % 360;
         if (normalizedAngle < 0)
         {
             normalizedAngle += 360;
         }
         return normalizedAngle;
-
     }
-    public float WindEfficiency()
+
+    public float WindEfficiency(float angle)
     {
-        float deltaAngle = Math.Abs(m_gameManager.Weather().NormalizedWindAngle() - NormalizedAngle()) % 360;
+        float deltaAngle = Math.Abs(m_gameManager.Weather().NormalizedWindAngle() - NormalizeAngle(angle)) % 360;
         deltaAngle = deltaAngle > 180f ? 360f - deltaAngle : deltaAngle;
-        //Debug.Log(string.Format("Wind: {0}, Boat: {1}, Delta: {2}", windGauge.NormalizedAngle(), NormalizedAngle(), deltaAngle));
         float windEff = (180f - deltaAngle) / 180;
-        //Debug.Log(windEff);
+        //Debug.Log(string.Format("Wind: {0}, Boat: {1}, Delta: {2}, Eff: {3}", m_gameManager.Weather().NormalizedWindAngle(), NormalizeAngle(angle), deltaAngle, windEff));
         return windEff;
     }
 

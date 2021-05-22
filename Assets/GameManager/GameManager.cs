@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
         m_playerBoat = Instantiate(m_playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         m_mainCamera = GameObject.FindObjectOfType<FollowCamera>();
         m_mainCamera.Follow(m_playerBoat);
+        //m_playerBoatControl.SetBoat(m_playerBoat.GetComponent<BoatMovement>());
         m_aiBoatControl.SetBoat(m_playerBoat.GetComponent<BoatMovement>());
         ConstructSailIndicator(m_playerBoat.GetComponent<BoatMovement>());
         ConstructWindGauge();
