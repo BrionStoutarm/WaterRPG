@@ -167,6 +167,11 @@ public class BoatMovement : MonoBehaviour
         m_rotationSetting = RotationSetting.RIGHT;
     }
 
+    public void LiveRotationSetting(BoatMovement.RotationSetting rot)
+    {
+        m_rotationSetting = rot;
+    }
+
     public float NormalizedAngle()
     {
         float normalizedAngle = transform.eulerAngles.y % 360;

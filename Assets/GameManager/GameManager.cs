@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     
     public WeatherManager m_weatherManager;
     public PlayerBoatControl m_playerBoatControl;
+    public AIBoatControl m_aiBoatControl;
 
     public float m_turnLength = 1.0f;
 
@@ -39,7 +40,7 @@ public class GameManager : MonoBehaviour
         m_playerBoat = Instantiate(m_playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         m_mainCamera = GameObject.FindObjectOfType<FollowCamera>();
         m_mainCamera.Follow(m_playerBoat);
-        m_playerBoatControl.SetBoat(m_playerBoat.GetComponent<BoatMovement>());
+        m_aiBoatControl.SetBoat(m_playerBoat.GetComponent<BoatMovement>());
         ConstructSailIndicator(m_playerBoat.GetComponent<BoatMovement>());
         ConstructWindGauge();
     }
