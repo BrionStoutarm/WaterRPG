@@ -16,7 +16,7 @@ public class SailIndicator : MonoBehaviour
     {
         if (m_ship)
         {
-            GetComponent<UnityEngine.UI.Text>().text = m_ship.MovementSettingToString(m_ship.m_movementSetting);
+            GetComponent<UnityEngine.UI.Text>().text = BoatMovement.MovementSettingToString(m_ship.m_movementSetting);
         }
     }
 

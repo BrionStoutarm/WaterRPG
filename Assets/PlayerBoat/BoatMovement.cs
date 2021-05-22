@@ -95,7 +95,7 @@ public class BoatMovement : MonoBehaviour
     private Vector3 LiveMovementPosition(RotationSetting rot, MovementSetting mov)
     {
         Vector3 dirVector = transform.forward;
-        switch (m_rotationSetting)
+        switch (rot)
         {
             case (RotationSetting.LEFT):
                 dirVector = Quaternion.Euler(0, -m_rotationSpeed * Time.deltaTime, 0) * dirVector;
@@ -235,7 +235,7 @@ public class BoatMovement : MonoBehaviour
         switch (x)
         {
             case MovementSetting.OARS_BACK:
-                return -1f;
+                return -.5f;
             case MovementSetting.OARS_FORWARD:
                 return 1f;
             default:
@@ -243,7 +243,7 @@ public class BoatMovement : MonoBehaviour
         }
     }
 
-    public string MovementSettingToString(MovementSetting x)
+    public static string MovementSettingToString(MovementSetting x)
     {
         switch (x)
         {
@@ -261,6 +261,21 @@ public class BoatMovement : MonoBehaviour
                 return "SAIL_F";
             default:
                 return "UNKNOWN";
+        }
+    }
+
+    public static string RotationSettingToString(RotationSetting x)
+    {
+        switch (x)
+        {
+            case RotationSetting.FORWARD:
+                return "FORWARD";
+            case RotationSetting.LEFT:
+                return "LEFT";
+            case RotationSetting.RIGHT:
+                return "RIGHT";
+            default:
+                return "DEFAULT";
         }
     }
     public float MovementSettingToWindMultiple(MovementSetting x)
