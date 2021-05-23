@@ -2,43 +2,37 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Move = System.Tuple<BoatMovement.RotationSetting, BoatMovement.MovementSetting>;
+using Move = System.Tuple<AITypes.Maneuver, BoatMovement.MovementSetting>;
+
 
 public class AIBoatControl : MonoBehaviour
 {
-
+    
 
     public Vector3 m_target;
+    public GameObject m_targetObject;
     public float m_gotoThreshold = 2f;
     public float m_tackTargetAngle = 0;
     public float m_tackAngleThreshold = 5f; //acceptable angle within target
+    public float m_tackAngle = 90f;
     public float m_tackThreshold = 1.00001f;
+    public float m_followDistance = 50f;
+    public float m_followThreshold = 2f;
     private BoatMovement m_boat;
     private GameManager m_gameManager;
 
-    public enum Mode
-    {
-        WAIT,
-        RANDOM,
-        MAX_SPEED,
-        GO_TO
-    }
-    public Mode m_mode;
 
-    public enum Maneuver
-    {
-        NONE,
-        TACK_LEFT,
-        TACK_RIGHT
-    }
-    public Maneuver m_manuever;
+    public AITypes.Mode m_mode;
+
+    
+    public AITypes.Maneuver m_maneuver;
 
 
     // Start is called before the first frame update
     void Start()
     {
         m_gameManager = GameManager.Get();
-        m_mode = Mode.GO_TO;
+        m_mode = AITypes.Mode.GO_TO;
     }
 
     // Update is called once per frame
@@ -52,14 +46,17 @@ public class AIBoatControl : MonoBehaviour
         {
             switch (m_mode)
             {
-                case (Mode.RANDOM):
+                case (AITypes.Mode.RANDOM):
                     MoveRandomly();
                     break;
-                case (Mode.MAX_SPEED):
+                case (AITypes.Mode.MAX_SPEED):
                     MoveMaxSpeed();
                     break;
-                case (Mode.GO_TO):
+                case (AITypes.Mode.GO_TO):
                     MoveGoTo();
+                    break;
+                case (AITypes.Mode.FOLLOW):
+                    MoveFollow();
                     break;
                 default:
                     FullStop();
@@ -75,12 +72,12 @@ public class AIBoatControl : MonoBehaviour
     public void SetTarget(Vector3 target)
     {
         m_target = target;
-        m_mode = Mode.GO_TO;
+        m_mode = AITypes.Mode.GO_TO;
     }
 
     public void FullStop()
     {
-        ExecuteMove(new Move(BoatMovement.RotationSetting.FORWARD, BoatMovement.MovementSetting.FULL_STOP));
+        ExecuteMove(new Move(AITypes.Maneuver.NONE, BoatMovement.MovementSetting.FULL_STOP));
     }
 
     public void MoveRandomly()
@@ -114,31 +111,47 @@ public class AIBoatControl : MonoBehaviour
             }
         }
     }
+
+    public void addAllManeuvers(ref List<Move> moveList, BoatMovement.MovementSetting movement)
+    {
+        for(AITypes.Maneuver i = 0; i < AITypes.Maneuver.MANUEVER_END; ++i)
+        {
+            moveList.Add(new Move(i, movement));
+        }
+    }
+
     public List<Move> GenerateMoves()
     {
         var ret = new List<Move>(); //may be more efficient to create the exhaustive list once and legalize it
         var curMov = m_boat.m_movementSetting;
-        ret.Add(new Move(BoatMovement.RotationSetting.FORWARD, curMov));
-        ret.Add(new Move(BoatMovement.RotationSetting.LEFT, curMov));
-        ret.Add(new Move(BoatMovement.RotationSetting.RIGHT, curMov));
+        addAllManeuvers(ref ret, curMov);
         if (curMov > BoatMovement.MovementSetting.FULL_STOP) //Exclude oarsback to avoid cases where the AI won't turn
         {
-            ret.Add(new Move(BoatMovement.RotationSetting.FORWARD, curMov - 1));
-            ret.Add(new Move(BoatMovement.RotationSetting.LEFT, curMov - 1));
-            ret.Add(new Move(BoatMovement.RotationSetting.RIGHT, curMov - 1));
+            addAllManeuvers(ref ret, curMov - 1);
         }
         if (curMov < (BoatMovement.MovementSetting.MOVEMENT_COUNT - 1))
         {
-            ret.Add(new Move(BoatMovement.RotationSetting.FORWARD, curMov + 1));
-            ret.Add(new Move(BoatMovement.RotationSetting.LEFT, curMov + 1));
-            ret.Add(new Move(BoatMovement.RotationSetting.RIGHT, curMov + 1));
+            addAllManeuvers(ref ret, curMov + 1);
         }
         return ret;
     }
 
-    public float MaxSpeedScore(Move m)
+    public Vector3 PredictLocation(Move m)
     {
-        Vector3 predictedLocation = m_boat.LivePredictLocation(m.Item1, m.Item2);
+        switch (m.Item1)
+        {
+            case AITypes.Maneuver.TACK_LEFT:
+            case AITypes.Maneuver.TACK_RIGHT:
+                return m_boat.LivePredictTackPosition(ManeuverToRotationSetting(m.Item1), m.Item2, m_tackAngle);
+            case AITypes.Maneuver.TACK_HALF_LEFT:
+            case AITypes.Maneuver.TACK_HALF_RIGHT:
+                return m_boat.LivePredictTackPosition(ManeuverToRotationSetting(m.Item1), m.Item2, (m_tackAngle / 2));
+        }
+        return m_boat.LivePredictLocation(ManeuverToRotationSetting(m.Item1), m.Item2);
+    }
+
+    public float MaxSpeedScore(Vector3 predictedLocation)
+    {
         float score = Vector3.Distance(m_boat.transform.position, predictedLocation);
         //Debug.Log(string.Format("{0} {1} {2}", BoatMovement.RotationSettingToString(m.Item1), BoatMovement.MovementSettingToString(m.Item2), score));
         return score;
@@ -150,68 +163,51 @@ public class AIBoatControl : MonoBehaviour
         ExecuteMove(moveAndScore.Item1);
     }
 
-    public float GoToScore(Move m)
-    {
-        Vector3 predictedLocation = m_boat.LivePredictLocation(m.Item1, m.Item2);
-        return GoToScore(predictedLocation);
-    }
-
-    public float GoToScore(Vector3 predictedLocation)
+    private float GoToScore(Vector3 predictedLocation)
     {
         float score = 1 / (1 + Vector3.Distance(m_target, predictedLocation));
         //Debug.Log(string.Format("{0} {1} {2} {3}", BoatMovement.RotationSettingToString(m.Item1), BoatMovement.MovementSettingToString(m.Item2), Vector3.Distance(m_target, predictedLocation), score));
         return score;
     }
 
+    private float FollowScore(Vector3 predictedLocation)
+    {
+        //modify this to penalize being too close. Might be smoother than the threshold FullStop
+        float score = 1 / (1 + FollowDistanceDistance(predictedLocation));
+        return score;
+    }
+    private float FollowDistanceDistance(Vector3 toMeasure) //Fully aware this name is bad, if you can come up with a better one let me know. It's the distance from the target distance Ex actual_dist = 5, target_dist = 10, distance_dist = 5
+    {
+        return Math.Abs(m_followDistance - Vector3.Distance(m_targetObject.transform.position, toMeasure));
+    }
+
+    public void MoveFollow()
+    {
+        if (!m_targetObject)
+        {
+            FullStop();
+            return;
+        }
+        var moves = GenerateMoves();
+        LegalizeFollow(ref moves);
+        LegalizeManeuver(ref moves);
+        var moveAndScore = ChooseMove(moves, FollowScore);
+        var move = moveAndScore.Item1;
+        ExecuteMove(move);
+    }
+
     public void MoveGoTo()
     {
         if(Vector3.Distance(m_target, m_boat.transform.position) < m_gotoThreshold){
-            m_mode = Mode.WAIT;
+            m_mode = AITypes.Mode.WAIT;
             FullStop();
             return;
         }
         var moves = GenerateMoves();
         LegalizeGoTo(ref moves);
-        if(m_manuever != Maneuver.NONE)
-        {
-            if(m_manuever == Maneuver.TACK_LEFT || m_manuever == Maneuver.TACK_RIGHT)
-            {
-                if (m_boat.NormalizeAngle(m_boat.NormalizedAngle() - m_tackTargetAngle) < m_tackAngleThreshold)
-                {
-                    m_manuever = Maneuver.NONE;
-                }
-            }
-            LegalizeManeuver(ref moves);
-        }
+        LegalizeManeuver(ref moves);
         var moveAndScore = ChooseMove(moves, GoToScore);
         var move = moveAndScore.Item1;
-        if(m_manuever == Maneuver.NONE)
-        {
-            var leftTackLocation = m_boat.LivePredictTackPosition(BoatMovement.RotationSetting.LEFT, m_boat.m_movementSetting);
-            var leftTackScore = GoToScore(leftTackLocation);
-            var rightTackLocation = m_boat.LivePredictTackPosition(BoatMovement.RotationSetting.RIGHT, m_boat.m_movementSetting);
-            var rightTackScore = GoToScore(rightTackLocation);
-            //Debug.Log(string.Format("LeftScore: {0}", leftTackScore/ moveAndScore.Item2));
-            if ((leftTackScore / moveAndScore.Item2) > m_tackThreshold)
-            {
-                //Debug.Log("TACKING LEFT");
-                m_manuever = Maneuver.TACK_LEFT;
-                m_tackTargetAngle = m_boat.NormalizeAngle(m_boat.NormalizedAngle() - 90f);
-                return;
-            }
-            else
-            {
-
-                //Debug.Log(string.Format("RightScore: {0}", rightTackScore / moveAndScore.Item2));
-                if ((rightTackScore / moveAndScore.Item2) > m_tackThreshold)
-                {
-                    //Debug.Log("TACKING RIGHT");
-                    m_manuever = Maneuver.TACK_RIGHT;
-                    m_tackTargetAngle = m_boat.NormalizeAngle(m_boat.NormalizedAngle() + 90f);
-                    return;
-                }
-            }
-        }
         ExecuteMove(move);
     }
 
@@ -226,7 +222,7 @@ public class AIBoatControl : MonoBehaviour
 
     private bool isNotLeft(Move m)
     {
-        if(m.Item1 != BoatMovement.RotationSetting.LEFT)
+        if(m.Item1 != AITypes.Maneuver.LEFT)
         {
             return true;
         }
@@ -235,7 +231,7 @@ public class AIBoatControl : MonoBehaviour
 
     private bool isNotRight(Move m)
     {
-        if (m.Item1 != BoatMovement.RotationSetting.RIGHT)
+        if (m.Item1 != AITypes.Maneuver.RIGHT)
         {
             return true;
         }
@@ -244,39 +240,153 @@ public class AIBoatControl : MonoBehaviour
 
     public void LegalizeGoTo(ref List<Move> moveList)
     {
-        if (Vector3.Distance(m_boat.transform.position, m_target) > m_gotoThreshold);
+        if (Vector3.Distance(m_boat.transform.position, m_target) > m_gotoThreshold)
         {
             moveList.RemoveAll(isFullStop);
         }
     }
 
-    public void LegalizeManeuver(ref List<Move> moveList)
+    public void LegalizeFollow(ref List<Move> moveList)
     {
-        if(m_manuever == Maneuver.TACK_LEFT)
+        if (FollowDistanceDistance(m_boat.transform.position) > m_followThreshold)
         {
-            moveList.RemoveAll(isNotLeft);
-        }
-        else if(m_manuever == Maneuver.TACK_RIGHT)
-        {
-            moveList.RemoveAll(isNotRight);
+            moveList.RemoveAll(isFullStop);
         }
     }
-    
+
+    public bool IsTack(AITypes.Maneuver m)
+    {
+        switch (m)
+        {
+            case AITypes.Maneuver.TACK_HALF_LEFT:
+            case AITypes.Maneuver.TACK_LEFT:
+            case AITypes.Maneuver.TACK_HALF_RIGHT:
+            case AITypes.Maneuver.TACK_RIGHT:
+                return true;
+            default:
+                return false;
+
+        }
+    }
+
+    public bool IsLeftTack(AITypes.Maneuver m)
+    {
+        switch (m)
+        {
+            case AITypes.Maneuver.TACK_HALF_LEFT:
+            case AITypes.Maneuver.TACK_LEFT:
+                return true;
+            default:
+                return false;
+
+        }
+    }
+
+    public bool IsRightTack(AITypes.Maneuver m)
+    {
+        switch (m)
+        {
+            case AITypes.Maneuver.TACK_HALF_RIGHT:
+            case AITypes.Maneuver.TACK_RIGHT:
+                return true;
+            default:
+                return false;
+
+        }
+    }
+
+    public void LegalizeManeuver(ref List<Move> moveList)
+    {
+        if (m_maneuver != AITypes.Maneuver.NONE)
+        {
+            if (IsTack(m_maneuver))
+            {
+                if (m_boat.NormalizeAngle(m_boat.NormalizedAngle() - m_tackTargetAngle) < m_tackAngleThreshold)
+                {
+                    m_maneuver = AITypes.Maneuver.NONE;
+                }
+            }
+            if (IsLeftTack(m_maneuver))
+            {
+                moveList.RemoveAll(isNotLeft);
+            }
+            else if (IsRightTack(m_maneuver))
+            {
+                moveList.RemoveAll(isNotRight);
+            }
+        }
+    }
+
+    public BoatMovement.RotationSetting ManeuverToRotationSetting(AITypes.Maneuver m)
+    {
+        switch (m)
+        {
+            case AITypes.Maneuver.TACK_LEFT:
+            case AITypes.Maneuver.TACK_HALF_LEFT:
+            case AITypes.Maneuver.LEFT:
+            {
+                return BoatMovement.RotationSetting.LEFT;
+            }
+            case AITypes.Maneuver.TACK_RIGHT:
+            case AITypes.Maneuver.TACK_HALF_RIGHT:
+            case AITypes.Maneuver.RIGHT:
+            {
+                return BoatMovement.RotationSetting.RIGHT;
+            }
+            default:
+                return BoatMovement.RotationSetting.FORWARD;
+        }
+    }
     public void ExecuteMove(Move toMove)
     {
-        m_boat.m_rotationSetting = toMove.Item1;
+        switch (toMove.Item1)
+        {
+            case AITypes.Maneuver.TACK_LEFT:
+                m_maneuver = AITypes.Maneuver.TACK_LEFT;
+                m_tackTargetAngle = m_boat.NormalizeAngle(m_boat.NormalizedAngle() - m_tackAngle);
+                break;
+            case AITypes.Maneuver.TACK_HALF_LEFT:
+                m_maneuver = AITypes.Maneuver.TACK_LEFT;
+                m_tackTargetAngle = m_boat.NormalizeAngle(m_boat.NormalizedAngle() - (m_tackAngle / 2));
+                break;
+            case AITypes.Maneuver.TACK_RIGHT:
+                m_maneuver = AITypes.Maneuver.TACK_RIGHT;
+                m_tackTargetAngle = m_boat.NormalizeAngle(m_boat.NormalizedAngle() + m_tackAngle);
+                break;
+            case AITypes.Maneuver.TACK_HALF_RIGHT:
+                m_maneuver = AITypes.Maneuver.TACK_RIGHT;
+                m_tackTargetAngle = m_boat.NormalizeAngle(m_boat.NormalizedAngle() + (m_tackAngle / 2));
+                break;
+            default:
+                break;
+        }
+        m_boat.m_rotationSetting = ManeuverToRotationSetting(toMove.Item1);
         m_boat.m_movementSetting = toMove.Item2;
     }
 
-    public Tuple<Move, float> ChooseMove(List<Move> moveList, Func<Move, float> scoreMove)
+    public float ManeuverAdjustment(AITypes.Maneuver m, float curScore)
+    {
+        switch (m)
+        {
+            case AITypes.Maneuver.TACK_LEFT:
+            case AITypes.Maneuver.TACK_HALF_LEFT:
+            case AITypes.Maneuver.TACK_RIGHT:
+            case AITypes.Maneuver.TACK_HALF_RIGHT:
+                return curScore / m_tackThreshold;
+            default:
+                return curScore;
+        }
+    }
+
+    public Tuple<Move, float> ChooseMove(List<Move> moveList, Func<Vector3, float> scoreMove)
     {
         float bestScore = 0;
         Move bestMove = moveList[0];
-        string logStr = "";
+        //string logStr = "";
         foreach(Move m in moveList)
         {
-            float score = scoreMove(m);
-            logStr += string.Format("{0} {1} {2}   ", BoatMovement.RotationSettingToString(m.Item1), BoatMovement.MovementSettingToString(m.Item2), score);
+            float score = ManeuverAdjustment(m.Item1, scoreMove(PredictLocation(m)));
+            //logStr += string.Format("{0} {1} {2}   ", BoatMovement.RotationSettingToString(m.Item1), BoatMovement.MovementSettingToString(m.Item2), score);
             if (score > bestScore)
             {
                 bestMove = m;
@@ -286,5 +396,11 @@ public class AIBoatControl : MonoBehaviour
         //Debug.Log(logStr);
         //Debug.Log(string.Format("{0} {1} {2}", BoatMovement.RotationSettingToString(bestMove.Item1), BoatMovement.MovementSettingToString(bestMove.Item2), bestScore));
         return new Tuple<Move, float>(bestMove, bestScore);
+    }
+
+    public void Follow(GameObject obj)
+    {
+        m_targetObject = obj;
+        m_mode = AITypes.Mode.FOLLOW;
     }
 }

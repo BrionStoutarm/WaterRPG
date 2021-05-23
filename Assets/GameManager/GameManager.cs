@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public GameObject m_playerPrefab;
     public GameObject m_sailIndicatorPrefab;
     public GameObject m_windGaugePrefab;
+    public GameObject m_aiBoat;
 
     private FollowCamera m_mainCamera;
     private GameObject m_playerBoat;
@@ -40,8 +41,9 @@ public class GameManager : MonoBehaviour
         m_playerBoat = Instantiate(m_playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         m_mainCamera = GameObject.FindObjectOfType<FollowCamera>();
         m_mainCamera.Follow(m_playerBoat);
-        //m_playerBoatControl.SetBoat(m_playerBoat.GetComponent<BoatMovement>());
-        m_aiBoatControl.SetBoat(m_playerBoat.GetComponent<BoatMovement>());
+        m_playerBoatControl.SetBoat(m_playerBoat.GetComponent<BoatMovement>());
+        m_aiBoatControl.SetBoat(m_aiBoat.GetComponent<BoatMovement>());
+        m_aiBoatControl.Follow(m_playerBoat);
         ConstructSailIndicator(m_playerBoat.GetComponent<BoatMovement>());
         ConstructWindGauge();
     }
@@ -75,9 +77,9 @@ public class GameManager : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.M))
                 {
                     m_aiBoatControl.m_mode++;
-                    if (m_aiBoatControl.m_mode > AIBoatControl.Mode.GO_TO)
+                    if (m_aiBoatControl.m_mode >= AITypes.Mode.MODE_END)
                     {
-                        m_aiBoatControl.m_mode = AIBoatControl.Mode.WAIT;
+                        m_aiBoatControl.m_mode = AITypes.Mode.WAIT;
                     }
                 }
             }

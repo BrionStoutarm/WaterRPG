@@ -109,16 +109,16 @@ public class BoatMovement : MonoBehaviour
         return LiveMovementPosition(dirVector, mov);
     }
 
-    public Vector3 LivePredictTackPosition(RotationSetting rot, MovementSetting mov)
+    public Vector3 LivePredictTackPosition(RotationSetting rot, MovementSetting mov, float angle)
     {
         Vector3 dirVector = transform.forward;
         switch (rot)
         {
             case (RotationSetting.LEFT):
-                dirVector = Quaternion.Euler(0, -90, 0) * dirVector;
+                dirVector = Quaternion.Euler(0, -angle, 0) * dirVector;
                 break;
             case (RotationSetting.RIGHT):
-                dirVector = Quaternion.Euler(0, 90, 0) * dirVector;
+                dirVector = Quaternion.Euler(0, angle, 0) * dirVector;
                 break;
             default:
                 break;
