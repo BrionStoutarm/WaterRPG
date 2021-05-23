@@ -106,6 +106,28 @@ public class BoatMovement : MonoBehaviour
             default:
                 break;
         }
+        return LiveMovementPosition(dirVector, mov);
+    }
+
+    public Vector3 LivePredictTackPosition(RotationSetting rot, MovementSetting mov)
+    {
+        Vector3 dirVector = transform.forward;
+        switch (rot)
+        {
+            case (RotationSetting.LEFT):
+                dirVector = Quaternion.Euler(0, -90, 0) * dirVector;
+                break;
+            case (RotationSetting.RIGHT):
+                dirVector = Quaternion.Euler(0, 90, 0) * dirVector;
+                break;
+            default:
+                break;
+        }
+        return LiveMovementPosition(dirVector, mov);
+    }
+
+    private Vector3 LiveMovementPosition(Vector3 dirVector, MovementSetting mov)
+    {
         float speed = MovementSpeed(mov, Quaternion.LookRotation(dirVector).eulerAngles.y) * Time.deltaTime;
         Vector3 newPos = transform.position + (dirVector * speed);
         return newPos;
@@ -205,6 +227,10 @@ public class BoatMovement : MonoBehaviour
             normalizedAngle += 360;
         }
         return normalizedAngle;
+    }
+    public float NormalizedAngle()
+    {
+        return NormalizeAngle(ForwardAngle());
     }
 
     public float WindEfficiency(float angle)

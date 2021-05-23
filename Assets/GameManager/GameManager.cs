@@ -70,7 +70,17 @@ public class GameManager : MonoBehaviour
                     m_playerBoat.GetComponent<BoatMovement>().AdvanceTurn(); //Need refactoring here to create a Turn sensitive base class
                 }
             }
-
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.M))
+                {
+                    m_aiBoatControl.m_mode++;
+                    if (m_aiBoatControl.m_mode > AIBoatControl.Mode.GO_TO)
+                    {
+                        m_aiBoatControl.m_mode = AIBoatControl.Mode.WAIT;
+                    }
+                }
+            }
         }
     }
 
