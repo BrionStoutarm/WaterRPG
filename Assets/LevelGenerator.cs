@@ -29,7 +29,7 @@ public class LevelGenerator : MonoBehaviour
         terrainGenerator = FindObjectOfType<TerrainGenerator>();
         resourceMapGenerator = FindObjectOfType<ResourceMapGenerator>();
         GenerateLevel(transform, viewer);
-        SpawnPlayer();
+        //SpawnPlayer();
     }
 
     void Update() {
