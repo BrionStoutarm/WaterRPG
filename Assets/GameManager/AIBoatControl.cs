@@ -18,6 +18,8 @@ public class AIBoatControl : MonoBehaviour
     public float m_tackThreshold = 1.00001f;
     public float m_followDistance = 50f;
     public float m_followThreshold = 2f;
+    public float m_collisionAvoidanceDistance = 30f;
+    public float m_collisionAvoidanceWeight = 10f;
     public BoatMovement m_boat;
     private GameManager m_gameManager;
 
@@ -150,9 +152,27 @@ public class AIBoatControl : MonoBehaviour
         return m_boat.LivePredictLocation(ManeuverToRotationSetting(m.Item1), m.Item2);
     }
 
+    public float CollisionDistanceScore(Vector3 predictedLocation)
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(predictedLocation, m_collisionAvoidanceDistance);
+        float closestCollider = m_collisionAvoidanceDistance;
+        foreach(Collider c in hitColliders)
+        {
+            if (c.transform.root != m_boat.transform) {
+                Vector3 closest = c.ClosestPoint(predictedLocation);
+                float distanceToClosest = Vector3.Distance(closest, predictedLocation);
+                if (distanceToClosest < closestCollider)
+                {
+                    closestCollider = distanceToClosest;
+                }
+            }
+        }
+        return m_collisionAvoidanceWeight * (closestCollider / m_collisionAvoidanceDistance);
+    }
+
     public float MaxSpeedScore(Vector3 predictedLocation)
     {
-        float score = Vector3.Distance(m_boat.transform.position, predictedLocation);
+        float score = 1/ (1 + (m_gameManager.Weather().WindSpeed() - Vector3.Distance(m_boat.transform.position, predictedLocation))) + CollisionDistanceScore(predictedLocation);
         //Debug.Log(string.Format("{0} {1} {2}", BoatMovement.RotationSettingToString(m.Item1), BoatMovement.MovementSettingToString(m.Item2), score));
         return score;
     }
@@ -165,15 +185,14 @@ public class AIBoatControl : MonoBehaviour
 
     private float GoToScore(Vector3 predictedLocation)
     {
-        float score = 1 / (1 + Vector3.Distance(m_target, predictedLocation));
+        float score = (1 / (1 + Vector3.Distance(m_target, predictedLocation))) + CollisionDistanceScore(predictedLocation);
         //Debug.Log(string.Format("{0} {1} {2} {3}", BoatMovement.RotationSettingToString(m.Item1), BoatMovement.MovementSettingToString(m.Item2), Vector3.Distance(m_target, predictedLocation), score));
         return score;
     }
 
     private float FollowScore(Vector3 predictedLocation)
     {
-        //modify this to penalize being too close. Might be smoother than the threshold FullStop
-        float score = 1 / (1 + FollowDistanceDistance(predictedLocation));
+        float score = (1 / (1 + FollowDistanceDistance(predictedLocation))) + CollisionDistanceScore(predictedLocation);
         return score;
     }
     private float FollowDistanceDistance(Vector3 toMeasure) //Fully aware this name is bad, if you can come up with a better one let me know. It's the distance from the target distance Ex actual_dist = 5, target_dist = 10, distance_dist = 5
