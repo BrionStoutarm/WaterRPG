@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     public GameObject m_aiBoat;
 
     private FollowCamera m_mainCamera;
-    private GameObject m_playerBoat;
+    public GameObject m_playerBoat;
     private SailIndicator m_sailIndicator;
     private WindGauge m_windGauge;
     
@@ -38,12 +38,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        m_playerBoat = Instantiate(m_playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         m_mainCamera = GameObject.FindObjectOfType<FollowCamera>();
         m_mainCamera.Follow(m_playerBoat);
-        m_playerBoatControl.SetBoat(m_playerBoat.GetComponent<BoatMovement>());
-        m_aiBoatControl.SetBoat(m_aiBoat.GetComponent<BoatMovement>());
-        m_aiBoatControl.Follow(m_playerBoat);
         ConstructSailIndicator(m_playerBoat.GetComponent<BoatMovement>());
         ConstructWindGauge();
     }

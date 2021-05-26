@@ -8,7 +8,7 @@ public class PlayerBoatControl : MonoBehaviour
     public KeyCode m_speedDown = KeyCode.S;
     public KeyCode m_turnLeft = KeyCode.A;
     public KeyCode m_turnRight = KeyCode.D;
-    private BoatMovement m_boat;
+    public BoatMovement m_boat;
     private GameManager m_gameManager;
     // Start is called before the first frame update
     void Start()

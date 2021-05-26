@@ -18,7 +18,7 @@ public class AIBoatControl : MonoBehaviour
     public float m_tackThreshold = 1.00001f;
     public float m_followDistance = 50f;
     public float m_followThreshold = 2f;
-    private BoatMovement m_boat;
+    public BoatMovement m_boat;
     private GameManager m_gameManager;
 
 
