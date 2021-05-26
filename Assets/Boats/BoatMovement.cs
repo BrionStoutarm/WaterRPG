@@ -10,6 +10,7 @@ public class BoatMovement : MonoBehaviour
     public float m_sailEfficiency = 1.0f;
     public float m_rotationSpeed = 90f; //degrees/sec
 
+    public Rigidbody m_rigidbody;
     private GameManager m_gameManager;
 
 
@@ -49,10 +50,11 @@ public class BoatMovement : MonoBehaviour
     void Start()
     {
         m_gameManager = GameManager.Get();
+        m_rigidbody = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
-    void Update() {
+    void FixedUpdate() {
         if (m_gameManager.Paused())
         {
             if (m_advancingTurn)
@@ -64,6 +66,14 @@ public class BoatMovement : MonoBehaviour
         {
             LiveRotation();
             LiveMovement();
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            Debug.DrawLine(contact.point, transform.position, Color.yellow);
         }
     }
 
@@ -79,7 +89,7 @@ public class BoatMovement : MonoBehaviour
         float fractionOfJourney = (Time.time - m_startTime) / m_gameManager.m_turnLength;
 
         // Set our position as a fraction of the distance between the markers.
-        transform.position = Vector3.Lerp(m_startPosition, m_endPosition, fractionOfJourney);
+        m_rigidbody.MovePosition(Vector3.Lerp(m_startPosition, m_endPosition, fractionOfJourney));
     }
 
     private void LiveMovement()
@@ -88,7 +98,8 @@ public class BoatMovement : MonoBehaviour
         if (newPos != transform.position)
         {
             Debug.DrawLine(transform.position, newPos, Color.red, 100f);
-            transform.position = newPos;
+            m_rigidbody.MovePosition(newPos);
+            //transform.position = newPos;
         }
     }
 
@@ -140,11 +151,15 @@ public class BoatMovement : MonoBehaviour
         {
             case (RotationSetting.LEFT):
                 //Debug.Log(-m_rotationSpeed * Time.deltaTime);
-                transform.Rotate(0, -m_rotationSpeed * Time.deltaTime, 0);
+                Quaternion leftRotation = Quaternion.Euler(new Vector3(0, -m_rotationSpeed * Time.fixedDeltaTime, 0));
+                m_rigidbody.MoveRotation(m_rigidbody.rotation * leftRotation);
+                //transform.Rotate(0, -m_rotationSpeed * Time.deltaTime, 0);
                 break;
             case (RotationSetting.RIGHT):
                 //Debug.Log(m_rotationSpeed * Time.deltaTime);
-                transform.Rotate(0, m_rotationSpeed * Time.deltaTime, 0);
+                Quaternion rightRotation = Quaternion.Euler(new Vector3(0, m_rotationSpeed * Time.fixedDeltaTime, 0));
+                m_rigidbody.MoveRotation(m_rigidbody.rotation * rightRotation);
+                //transform.Rotate(0, m_rotationSpeed * Time.deltaTime, 0);
                 break;
             default:
                 return;
