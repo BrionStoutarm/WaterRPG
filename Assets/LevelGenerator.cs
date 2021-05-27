@@ -44,7 +44,7 @@ public class LevelGenerator : MonoBehaviour
 
     //will take more params
     public Level GenerateLevel(Transform parent, Transform viewer) {
-        terrainChunk = terrainGenerator.GenerateTerrainChunk(); //pass in biome and other area info to affect the terrain generated
+        terrainChunk = terrainGenerator.GenerateTerrainChunk(Vector3.zero); //pass in biome and other area info to affect the terrain generated
         Debug.Log("Terrain Chunk done!");
         resourceMapGenerator.PopulateTerrainWithResources(terrainChunk);//^^
         Debug.Log("Populating Resources done!");

@@ -54,9 +54,9 @@ public class TerrainGenerator : MonoBehaviour {
 		}
 	}
 
-	public TerrainChunk GenerateTerrainChunk() {
+	public TerrainChunk GenerateTerrainChunk(Vector2 position) {
 		MapSettings mapSettings = new MapSettings(heightMapSettings, meshSettings, mapMaterial, detailLevels);
-		TerrainChunk newChunk = new TerrainChunk(Vector2.zero, mapSettings, transform, viewer);
+		TerrainChunk newChunk = new TerrainChunk(position, mapSettings, transform, viewer);
 		newChunk.Load();
 
 		return newChunk;
