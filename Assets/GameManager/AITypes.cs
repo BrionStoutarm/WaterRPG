@@ -21,4 +21,12 @@ public static class AITypes
         TACK_RIGHT,
         MANUEVER_END
     }
+
+    public enum LandManeuver
+    {
+        NONE,
+        LEFT,
+        RIGHT,
+        MANUEVER_END
+    }
 }
