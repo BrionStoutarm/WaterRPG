@@ -7,6 +7,11 @@ public class PlayerUI : MonoBehaviour
     private GameManager m_gameManager;
     public GameObject m_selected;
     public ObjectPlacer m_placer;
+
+    public KeyCode m_cameraLeft = KeyCode.A;
+    public KeyCode m_cameraRight = KeyCode.D;
+    public KeyCode m_cameraUp = KeyCode.W;
+    public KeyCode m_cameraDown = KeyCode.S;
     // Start is called before the first frame update
     void Start()
     {
@@ -16,6 +21,7 @@ public class PlayerUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CameraMovement();
         if (StaticMethods.IsPointerOverUIElement())
         {
             return;
@@ -35,7 +41,7 @@ public class PlayerUI : MonoBehaviour
                 else
                 {
                     Deselect();
-                    m_gameManager.Center(ClickLocation());
+                    m_gameManager.Unfollow();
                 }
             }
         }
@@ -45,6 +51,25 @@ public class PlayerUI : MonoBehaviour
         }
     }
 
+    private void CameraMovement()
+    {
+        if (Input.GetKey(m_cameraLeft))
+        {
+            m_gameManager.CameraLeft();
+        }
+        if (Input.GetKey(m_cameraRight))
+        {
+            m_gameManager.CameraRight();
+        }
+        if (Input.GetKey(m_cameraDown))
+        {
+            m_gameManager.CameraDown();
+        }
+        if (Input.GetKey(m_cameraUp))
+        {
+            m_gameManager.CameraUp();
+        }
+    }
     private GameObject GetObjectAtMouse()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

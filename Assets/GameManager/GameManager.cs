@@ -111,6 +111,27 @@ public class GameManager : MonoBehaviour
         m_mainCamera.Center(loc);
     }
 
+    public void Unfollow()
+    {
+        m_mainCamera.Follow(null);
+    }
+    public void CameraLeft()
+    {
+        m_mainCamera.Left();
+    }
+    public void CameraRight()
+    {
+        m_mainCamera.Right();
+    }
+    public void CameraUp()
+    {
+        m_mainCamera.Up();
+    }
+    public void CameraDown()
+    {
+        m_mainCamera.Down();
+    }
+
     public bool Paused()
     {
         return m_paused;
