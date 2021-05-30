@@ -9,7 +9,7 @@ public class VillagerAI : MonoBehaviour
     public Vector3 m_target;
     public GameObject m_targetObject;
 
-    public float m_gotoThreshold = 1f;
+    public float m_gotoThreshold = 5.1f;
     public float m_collisionAvoidanceDistance = 5f;
     public float m_collisionAvoidanceWeight = 10f;
 
@@ -19,7 +19,7 @@ public class VillagerAI : MonoBehaviour
     void Start()
     {
         m_gameManager = GameManager.Get();
-        m_mode = AITypes.Mode.RANDOM;
+        m_mode = AITypes.Mode.WAIT;
     }
 
     // Update is called once per frame
@@ -146,6 +146,12 @@ public class VillagerAI : MonoBehaviour
     public void Wait()
     {
         ExecuteMove(new Move(AITypes.LandManeuver.NONE, Villager.MovementSetting.STOP));
+    }
+
+    public void GoTo(Vector3 v)
+    {
+        m_mode = AITypes.Mode.GO_TO;
+        m_target = v;
     }
 
     public float CollisionDistanceScore(Vector3 predictedLocation)

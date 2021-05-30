@@ -135,6 +135,14 @@ public class ObjectPlacer : MonoBehaviour
         m_objectToPlace = obj;
     }
 
+    public bool Placing()
+    {
+        if (m_objectToPlace)
+        {
+            return true;
+        }
+        return false;
+    }
 
     //TODO:
     //  -- Make the height modifier a Placeable method

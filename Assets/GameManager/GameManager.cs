@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public AIBoatControl m_aiBoatControl;
 
     public float m_turnLength = 1.0f;
+    public bool m_showWind = true;
 
     private bool m_paused = true;
     private bool m_advancingTurn = false;
@@ -39,9 +40,15 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         m_mainCamera = GameObject.FindObjectOfType<FollowCamera>();
-        m_mainCamera.Follow(m_playerBoat);
-        ConstructSailIndicator(m_playerBoat.GetComponent<BoatMovement>());
-        ConstructWindGauge();
+        if (m_playerBoat)
+        {
+            m_mainCamera.Follow(m_playerBoat);
+            ConstructSailIndicator(m_playerBoat.GetComponent<BoatMovement>());
+        }
+        if (m_showWind)
+        {
+            ConstructWindGauge();
+        }
     }
 
     // Update is called once per frame
@@ -49,7 +56,7 @@ public class GameManager : MonoBehaviour
     {
         if (m_advancingTurn)
         {
-            if (m_playerBoat.GetComponent<BoatMovement>().TurnComplete())
+            if (m_playerBoat && m_playerBoat.GetComponent<BoatMovement>().TurnComplete())
             {
                 m_advancingTurn = false;
             }
@@ -65,7 +72,10 @@ public class GameManager : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
                     m_advancingTurn = true;
-                    m_playerBoat.GetComponent<BoatMovement>().AdvanceTurn(); //Need refactoring here to create a Turn sensitive base class
+                    if (m_playerBoat)
+                    {
+                        m_playerBoat.GetComponent<BoatMovement>().AdvanceTurn(); //Need refactoring here to create a Turn sensitive base class
+                    }
                 }
             }
             else
@@ -89,6 +99,16 @@ public class GameManager : MonoBehaviour
     public WeatherManager Weather()
     {
         return m_weatherManager;
+    }
+
+    public void Follow(GameObject obj)
+    {
+        m_mainCamera.Follow(obj);
+    }
+
+    public void Center(Vector3 loc)
+    {
+        m_mainCamera.Center(loc);
     }
 
     public bool Paused()
