@@ -53,5 +53,5 @@ public class Placeable : MonoBehaviour
     public bool IsDonePlacing()
     {
         return m_isDonePlacing;
-    }    
+    }
 }

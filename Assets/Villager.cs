@@ -8,6 +8,8 @@ public class Villager : MonoBehaviour
     public float m_rotationSpeed = 90f;
     public float m_walkSpeed = 10f;
 
+    private GameManager m_gameManager;
+
     public enum MovementSetting
     {
         STOP,
@@ -28,6 +30,7 @@ public class Villager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        m_gameManager = GameManager.Get();
         m_rigidbody = GetComponentInChildren<Rigidbody>();
         if (!m_rigidbody)
         {
@@ -38,6 +41,10 @@ public class Villager : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (m_gameManager.Paused())
+        {
+            return;
+        }
         LiveRotation();
         LiveMovement();
     }

@@ -12,6 +12,8 @@ public class PlayerUI : MonoBehaviour
     public KeyCode m_cameraRight = KeyCode.D;
     public KeyCode m_cameraUp = KeyCode.W;
     public KeyCode m_cameraDown = KeyCode.S;
+    public KeyCode m_cancel = KeyCode.Escape;
+    public KeyCode m_pause = KeyCode.Return;
     // Start is called before the first frame update
     void Start()
     {
@@ -22,6 +24,7 @@ public class PlayerUI : MonoBehaviour
     void Update()
     {
         CameraMovement();
+        GameControls();
         if (StaticMethods.IsPointerOverUIElement())
         {
             return;
@@ -68,6 +71,23 @@ public class PlayerUI : MonoBehaviour
         if (Input.GetKey(m_cameraUp))
         {
             m_gameManager.CameraUp();
+        }
+    }
+
+    private void GameControls()
+    {
+        if (Input.GetKeyDown(m_cancel))
+        {
+            Deselect();
+            m_gameManager.Unfollow();
+            if (m_placer)
+            {
+                m_placer.ClearPlacer();
+            }
+        }
+        if (Input.GetKeyDown(m_pause))
+        {
+            m_gameManager.TogglePause();
         }
     }
     private GameObject GetObjectAtMouse()

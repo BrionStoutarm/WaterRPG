@@ -17,11 +17,12 @@ public class GameManager : MonoBehaviour
     public WeatherManager m_weatherManager;
     public PlayerBoatControl m_playerBoatControl;
     public AIBoatControl m_aiBoatControl;
+    public WaypointGraph m_waypoints;
 
     public float m_turnLength = 1.0f;
     public bool m_showWind = true;
 
-    private bool m_paused = true;
+    private bool m_paused = false;
     private bool m_advancingTurn = false;
 
     private static GameManager s_instance;
@@ -63,10 +64,6 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                m_paused ^= true;
-            }
             if (m_paused)
             {
                 if (Input.GetKeyDown(KeyCode.Space))
@@ -137,6 +134,11 @@ public class GameManager : MonoBehaviour
         return m_paused;
     }
 
+    public void TogglePause()
+    {
+        m_paused ^= true;
+    }
+
     void ConstructSailIndicator(BoatMovement boat)
     {
         m_sailIndicator = Instantiate(m_sailIndicatorPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<SailIndicator>();
@@ -150,5 +152,10 @@ public class GameManager : MonoBehaviour
         m_windGauge = Instantiate(m_windGaugePrefab, new Vector3(), Quaternion.identity).GetComponent<WindGauge>();
         m_windGauge.transform.SetParent(GameObject.FindObjectOfType<Canvas>().transform);
         m_windGauge.transform.localPosition = new Vector3(-468, -371, 0);
+    }
+
+    public WaypointGraph WaypointGraph()
+    {
+        return m_waypoints;
     }
 }
