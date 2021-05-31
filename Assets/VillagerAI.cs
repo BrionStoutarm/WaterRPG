@@ -7,9 +7,11 @@ public class VillagerAI : MonoBehaviour
 {
     public Villager m_villager;
     public Vector3 m_target;
+    public List<WaypointGraph.Waypoint> m_waypoints = new List<WaypointGraph.Waypoint>();
     public GameObject m_targetObject;
 
     public float m_gotoThreshold = 5.1f;
+    public float m_waypointThreshold = 1f;
     public float m_collisionAvoidanceDistance = 5f;
     public float m_collisionAvoidanceWeight = 10f;
 
@@ -92,8 +94,21 @@ public class VillagerAI : MonoBehaviour
         return score;
     }
 
+    private float WaypointScore(Vector3 predictedLocation)
+    {
+        float score = (1 / (1 + Vector3.Distance(m_waypoints[0].Position(), predictedLocation))) + CollisionDistanceScore(predictedLocation);
+        return score;
+    }
+
     public void MoveGoTo()
     {
+        if (m_waypoints.Count > 0)
+        {
+            if (MoveWaypoint())
+            {
+                return;
+            }
+        }
         if (Vector3.Distance(m_target, m_villager.transform.position) < m_gotoThreshold)
         {
             m_mode = AITypes.Mode.WAIT;
@@ -105,6 +120,24 @@ public class VillagerAI : MonoBehaviour
         var moveAndScore = ChooseMove(moves, GoToScore);
         var move = moveAndScore.Item1;
         ExecuteMove(move);
+    }
+
+    public bool MoveWaypoint()
+    {
+        if (Vector3.Distance(m_waypoints[0].Position(), m_villager.transform.position) < m_waypointThreshold)
+        {
+            m_waypoints.RemoveAt(0);
+        }
+        if(m_waypoints.Count == 0)
+        {
+            return false;
+        }
+        var moves = GenerateMoves();
+        LegalizeWaypoint(ref moves);
+        var moveAndScore = ChooseMove(moves, WaypointScore);
+        var move = moveAndScore.Item1;
+        ExecuteMove(move);
+        return true;
     }
 
     private bool isFullStop(Move m)
@@ -119,6 +152,14 @@ public class VillagerAI : MonoBehaviour
     public void LegalizeGoTo(ref List<Move> moveList)
     {
         if (Vector3.Distance(m_villager.transform.position, m_target) > m_gotoThreshold)
+        {
+            moveList.RemoveAll(isFullStop);
+        }
+    }
+
+    public void LegalizeWaypoint(ref List<Move> moveList)
+    {
+        if (Vector3.Distance(m_villager.transform.position, m_waypoints[0].Position()) > m_waypointThreshold)
         {
             moveList.RemoveAll(isFullStop);
         }
@@ -152,6 +193,7 @@ public class VillagerAI : MonoBehaviour
     {
         m_mode = AITypes.Mode.GO_TO;
         m_target = v;
+        m_waypoints = m_gameManager.WaypointGraph().RequestWaypoints(m_villager.transform.position, m_target);
     }
 
     public float CollisionDistanceScore(Vector3 predictedLocation)
