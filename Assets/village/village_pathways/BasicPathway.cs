@@ -13,9 +13,11 @@ public class BasicPathway : Placeable
 
     private Transform m_currentPath;
     private Vector3 m_currentMid;
+    private GameManager m_gameManager;
     // Start is called before the first frame update
     void Start()
     {
+        m_gameManager = GameManager.Get();
         m_startPosition = GetMousePoint();
     }
 
@@ -87,6 +89,13 @@ public class BasicPathway : Placeable
             m_isStarted = false;
             IsDonePlacing(true);
             StaticMethods.ApplyIgnoreRaycastLayer(this.transform, false);
+            if (m_gameManager)
+            {
+                var begin = m_gameManager.WaypointGraph().AddWaypoint(m_startPosition);
+                var end = m_gameManager.WaypointGraph().AddWaypoint(m_endPosition);
+                m_gameManager.WaypointGraph().AddEdge(begin, end);
+
+            }
         }
     }
 
@@ -98,6 +107,7 @@ public class BasicPathway : Placeable
     public override void DestroyThis()
     {
         Destroy(this.gameObject);
+        //m_gameManager.WaypointGraph().removeEdge(m_startPosition, m_endPosition);
         //Destroy(m_startModel);
         //Destroy(m_endModel);
 

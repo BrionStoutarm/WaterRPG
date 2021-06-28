@@ -8,6 +8,8 @@ public class ObjectPlacer : MonoBehaviour
     public float m_rotateSpeed = 10000f;
     public float m_heightModifier = .25f;
     public Placeable m_objectToPlace = null;
+    public VillageCenter m_curVillageCenter = null;
+
     private Placeable m_currentObject = null;
     private Transform m_preview = null;
     private bool m_destroy = false;
@@ -135,6 +137,14 @@ public class ObjectPlacer : MonoBehaviour
         m_objectToPlace = obj;
     }
 
+    public bool Placing()
+    {
+        if (m_objectToPlace)
+        {
+            return true;
+        }
+        return false;
+    }
 
     //TODO:
     //  -- Make the height modifier a Placeable method

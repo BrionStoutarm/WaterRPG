@@ -6,7 +6,7 @@ using UnityEngine;
 public class VillageCenter : MonoBehaviour
 {
     public GameObject m_villagerPrefab;
-    public uint m_villagerCount = 0;
+    public List<GameObject> m_villagers;
     public uint m_maxVillagers = 10;
     // Start is called before the first frame update
     void Start()
@@ -22,7 +22,7 @@ public class VillageCenter : MonoBehaviour
 
     public bool OkToSpawnVillager()
     {
-        if(m_villagerCount < m_maxVillagers)
+        if(m_villagers.Count < m_maxVillagers)
         {
             return true;
         }
@@ -34,7 +34,7 @@ public class VillageCenter : MonoBehaviour
         if (OkToSpawnVillager())
         {
             Vector3 spawnLocation = transform.position - new Vector3(-5, 0, 0);
-            Instantiate(m_villagerPrefab, spawnLocation, Quaternion.identity);
+            m_villagers.Add(Instantiate(m_villagerPrefab, spawnLocation, Quaternion.identity));
         }
     }
 }
