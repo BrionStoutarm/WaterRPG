@@ -116,11 +116,11 @@ public class ObjectPlacer : MonoBehaviour
 
     public void ClearPlacer()
     {
-        if (m_preview != null)
-            Destroy(m_preview.gameObject);
-
         if (m_objectToPlace)
             m_objectToPlace.CancelPlacement();
+
+        if (m_preview != null)
+            Destroy(m_preview.gameObject);
 
         m_objectToPlace = null;
         m_preview = null;

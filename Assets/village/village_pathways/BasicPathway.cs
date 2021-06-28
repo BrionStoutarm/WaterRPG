@@ -32,6 +32,10 @@ public class BasicPathway : Placeable
             RotateTowardsMouse(mousePos);
             StretchToPoint(mousePos);
             Debug.DrawLine(m_startPosition, mousePos, Color.red);
+
+            if (Input.GetMouseButtonDown(1)) {
+                CancelPlacement();
+            }
         }
     }
 
@@ -121,7 +125,7 @@ public class BasicPathway : Placeable
     {
         if (m_isStarted)
         {
-            Destroy(m_currentPath.gameObject);
+            Destroy(gameObject);
             m_isStarted = false;
         }
     }
