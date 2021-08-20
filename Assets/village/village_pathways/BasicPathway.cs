@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
@@ -14,6 +15,7 @@ public class BasicPathway : Placeable
     private Transform m_currentPath;
     private Vector3 m_currentMid;
     private GameManager m_gameManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,6 +31,7 @@ public class BasicPathway : Placeable
         if(m_isStarted)
         {
             Vector3 mousePos = GetMousePoint();
+            
             RotateTowardsMouse(mousePos);
             StretchToPoint(mousePos);
             Debug.DrawLine(m_startPosition, mousePos, Color.red);
@@ -47,6 +50,21 @@ public class BasicPathway : Placeable
 
         if (Physics.Raycast(ray, out hit))
         {
+
+            //See if we mouse over an existing path to snap to
+            // could extend this to snap to buildings with pathway snap-points
+            Ray pathRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit pathHit;
+            if(Physics.Raycast(pathRay, out pathHit)) {
+                Debug.Log("looking for path");
+                GameObject obj = pathHit.transform.gameObject;
+                if (obj)
+                    Debug.Log(obj.name);
+                if(obj.tag == "Placeable")
+                    Debug.Log("Hit existing path"); 
+            }
+
+
             mousePos = hit.point;
         }
 
