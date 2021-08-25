@@ -44,16 +44,13 @@ public class Grid {
 
         for (int x = 0; x < gridArray.GetLength(0) ; x++) {
             for (int y = 0; y < gridArray.GetLength(1); y++) {
-                debugTextArray[x, y] = CreateWorldText(gridArray[x, y].ToString(), null, GetWorldPosition(x, y) + new Vector3(widthCellSize, heightCellSize), 1, TextAnchor.MiddleCenter);
+                debugTextArray[x, y] = StaticFunctions.CreateWorldText(gridArray[x, y].ToString(), null, GetWorldPosition(x, y) + new Vector3(widthCellSize, heightCellSize), 1, TextAnchor.MiddleCenter);
                 Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, 100f);
                 Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, 100f);
             }
         }
         Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 100f);
         Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 100f);
-
-        SetValue(width / 2, height / 2, 100);
-
     }
 
     private Vector3 GetWorldPosition(int x, int y) {
@@ -92,39 +89,5 @@ public class Grid {
         int x, z;
         GetXZ(worldPosition, out x, out z);
         return GetValue(x, z);
-    }
-
-    //CodeMonkey.utils
-    public static TextMesh CreateWorldText(string text, Transform parent = null, Vector3 localPosition = default(Vector3), int fontSize = 40, TextAnchor textAnchor = TextAnchor.UpperLeft, TextAlignment textAlignment = TextAlignment.Left, int sortingOrder = 5000) {
-        Color color = Color.white;
-        GameObject gameObject = new GameObject("World_Text", typeof(TextMesh));
-        Transform transform = gameObject.transform;
-        transform.SetParent(parent, false);
-        transform.localPosition = localPosition;
-        TextMesh textMesh = gameObject.GetComponent<TextMesh>();
-        textMesh.anchor = textAnchor;
-        textMesh.alignment = textAlignment;
-        textMesh.text = text;
-        textMesh.fontSize = fontSize;
-        textMesh.color = color;
-        textMesh.GetComponent<MeshRenderer>().sortingOrder = sortingOrder;
-        return textMesh;
-    }
-    public static Vector3 GetMouseWorldPosition() {
-        Vector3 vec = GetMouseWorldPositionWithZ(Input.mousePosition, Camera.main);
-        //vec.y = 0f;
-        return vec;
-    }
-    public static Vector3 GetMouseWorldPositionWithZ() {
-        return GetMouseWorldPositionWithZ(Input.mousePosition, Camera.main);
-    }
-
-    public static Vector3 GetMouseWorldPositionWithZ(Camera worldCamera) {
-        return GetMouseWorldPositionWithZ(Input.mousePosition, worldCamera);
-    }
-
-    public static Vector3 GetMouseWorldPositionWithZ(Vector3 screenPosition, Camera worldCamera) {
-        Vector3 worldPosition = worldCamera.ScreenToViewportPoint(screenPosition);
-        return worldPosition;
     }
 }
