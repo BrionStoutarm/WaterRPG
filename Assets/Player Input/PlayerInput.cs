@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,13 +15,7 @@ public class PlayerInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            //Double left click
 
-            //Debug.Log("entry left click");
-            //HandleLeftClick();
-        }
     }
 
     //should probably be double click to auto zoom on object
@@ -42,5 +38,21 @@ public class PlayerInput : MonoBehaviour
             Debug.Log("Invalid collider");
         }
         Mesh mesh = meshCollider.sharedMesh;
+    }
+
+
+
+
+    private void GameControls() {
+    //    if (Input.GetKeyDown(m_cancel)) {
+    //        Deselect();
+    //        m_gameManager.Unfollow();
+    //        if (m_placer) {
+    //            m_placer.ClearPlacer();
+    //        }
+    //    }
+    //    if (Input.GetKeyDown(m_pause)) {
+    //        m_gameManager.TogglePause();
+    //    }
     }
 }
