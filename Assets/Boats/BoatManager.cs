@@ -27,23 +27,23 @@ public class BoatManager : MonoBehaviour
 
 
         Renderer rend = topDeckObject.GetComponent<Renderer>();
-        Vector3 origin = new Vector3(rend.bounds.min.x, 1, rend.bounds.min.z);
-        Vector3 topRight = new Vector3(rend.bounds.max.x, 1, rend.bounds.max.z);
+        Vector3 origin = new Vector3(rend.bounds.min.x, topDeckObject.transform.position.y, rend.bounds.min.z);
+        Vector3 topRight = new Vector3(rend.bounds.max.x, topDeckObject.transform.position.y, rend.bounds.max.z);
         topDeckGrid = new Grid<DeckGridObject>(gridWidth, gridHeight, 1f, origin, topRight, (Grid<DeckGridObject> g, int x, int y) => new DeckGridObject(g, x, y), gameManager.OnDebug());
         Deck topDeck = new Deck(topDeckGrid, topDeckObject);
         deckList[0] = topDeck;
 
         Renderer midRend = middleDeckObject.GetComponent<Renderer>();
-        origin = new Vector3(rend.bounds.min.x, 0, rend.bounds.min.z);
-        topRight = new Vector3(rend.bounds.max.x, 0, rend.bounds.max.z);
+        origin = new Vector3(rend.bounds.min.x, middleDeckObject.transform.position.y, rend.bounds.min.z);
+        topRight = new Vector3(rend.bounds.max.x, middleDeckObject.transform.position.y, rend.bounds.max.z);
         middleDeckGrid = new Grid<DeckGridObject>(gridWidth, gridHeight, 1f, origin, topRight, (Grid<DeckGridObject> g, int x, int y) => new DeckGridObject(g, x, y), gameManager.OnDebug());
         Deck midDeck = new Deck(middleDeckGrid, middleDeckObject);
         deckList[1] = midDeck;
         midDeck.DeckObj().SetActive(false);
 
         Renderer botRend = bottomDeckObject.GetComponent<Renderer>();
-        origin = new Vector3(botRend.bounds.min.x, -1, botRend.bounds.min.z);
-        topRight = new Vector3(botRend.bounds.max.x, -1, botRend.bounds.max.z);
+        origin = new Vector3(botRend.bounds.min.x, bottomDeckObject.transform.position.y, botRend.bounds.min.z);
+        topRight = new Vector3(botRend.bounds.max.x, bottomDeckObject.transform.position.y, botRend.bounds.max.z);
         bottomDeckGrid = new Grid<DeckGridObject>(gridWidth, gridHeight, 1f, origin, topRight, (Grid<DeckGridObject> g, int x, int y) => new DeckGridObject(g, x, y), gameManager.OnDebug());
         Deck botDeck = new Deck(bottomDeckGrid, bottomDeckObject);
         deckList[2] = botDeck;
@@ -61,39 +61,39 @@ public class BoatManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.DownArrow)) {
-            if (currentDeck != 2) {
-                int prevDeck = currentDeck;
-                currentDeck++;
-                deckList[currentDeck].DeckObj().SetActive(true);
-                deckList[prevDeck].DeckObj().SetActive(false);
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.UpArrow)) {
-            if (currentDeck != 0) {
-                int prevDeck = currentDeck;
-                currentDeck--;
-                deckList[currentDeck].DeckObj().SetActive(true);
-                deckList[prevDeck].DeckObj().SetActive(false);
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.DownArrow)) {
+        //    if (currentDeck != 2) {
+        //        int prevDeck = currentDeck;
+        //        currentDeck++;
+        //        deckList[currentDeck].DeckObj().SetActive(true);
+        //        deckList[prevDeck].DeckObj().SetActive(false);
+        //    }
+        //}
+        //else if (Input.GetKeyDown(KeyCode.UpArrow)) {
+        //    if (currentDeck != 0) {
+        //        int prevDeck = currentDeck;
+        //        currentDeck--;
+        //        deckList[currentDeck].DeckObj().SetActive(true);
+        //        deckList[prevDeck].DeckObj().SetActive(false);
+        //    }
+        //}
 
-        if (Input.GetMouseButtonDown(0)) {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.DrawLine(ray.GetPoint(100.0f), Camera.main.transform.position, Color.red, 10.0f);
+        //if (Input.GetMouseButtonDown(0)) {
+        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //    Debug.DrawLine(ray.GetPoint(100.0f), Camera.main.transform.position, Color.red, 10.0f);
 
-            RaycastHit hit;
+        //    RaycastHit hit;
 
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
-                Debug.Log(hit.point);
-                Vector3 hitPoint = hit.point;
-                hitPoint.y = 0f;
-                DeckGridObject deckGridObject = deckList[currentDeck].DeckGrid().GetGridObject(hitPoint);
-                if(deckGridObject != null) {
-                    deckGridObject.ChangeValue(5000);
-                }
-            }
-        }
+        //    if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
+        //        Debug.Log(hit.point);
+        //        Vector3 hitPoint = hit.point;
+        //        hitPoint.y = 0f;
+        //        DeckGridObject deckGridObject = deckList[currentDeck].DeckGrid().GetGridObject(hitPoint);
+        //        if(deckGridObject != null) {
+        //            deckGridObject.ChangeValue(5000);
+        //        }
+        //    }
+        //}
 
     }
 
