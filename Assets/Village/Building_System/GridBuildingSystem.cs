@@ -21,13 +21,11 @@ public class GridBuildingSystem : MonoBehaviour
 
     public Vector3 GetMouseWorldSnappedPosition() {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //Debug.DrawLine(ray.GetPoint(100.0f), Camera.main.transform.position, Color.red, 10.0f);
 
         RaycastHit hit;
 
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
             Vector3 hitPoint = hit.point;
-            hitPoint.y = 0f;
             grid.GetXZ(hitPoint, out int x, out int z);
 
             Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
@@ -51,15 +49,6 @@ public class GridBuildingSystem : MonoBehaviour
     }
 
     private void Awake() {
-        //int gridWidth = 10;
-        //int gridHeight = 10;
-
-        //Renderer rend = gridPlane.GetComponent<Renderer>();
-        //Vector3 origin = new Vector3(rend.bounds.min.x, gridPlane.transform.position.y, rend.bounds.min.z);
-        //Vector3 topRight = new Vector3(rend.bounds.max.x, gridPlane.transform.position.y, rend.bounds.max.z);
-
-        //grid = new Grid<GridObject>(gridWidth, gridHeight, 10f, origin, topRight, (Grid<GridObject> g, int x, int z) => new GridObject(g, x, z), gameManager.OnDebug());
-
         currentPlaceBuilding = buildingTypeList[0];
 
         Instance = this;
@@ -68,7 +57,6 @@ public class GridBuildingSystem : MonoBehaviour
     private void Update() {
         if (Input.GetMouseButtonDown(0)) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.DrawLine(ray.GetPoint(100.0f), Camera.main.transform.position, Color.red, 10.0f);
 
             RaycastHit hit;
 
@@ -118,7 +106,6 @@ public class GridBuildingSystem : MonoBehaviour
         //demolish building
         if(Input.GetMouseButton(1)) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.DrawLine(ray.GetPoint(100.0f), Camera.main.transform.position, Color.red, 10.0f);
 
             RaycastHit hit;
 

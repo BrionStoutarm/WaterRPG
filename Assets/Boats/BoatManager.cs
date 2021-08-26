@@ -32,23 +32,20 @@ public class BoatManager : MonoBehaviour
 
         Renderer rend = topDeckObject.GetComponent<Renderer>();
         Vector3 origin = new Vector3(rend.bounds.min.x, topDeckObject.transform.position.y, rend.bounds.min.z);
-        Vector3 topRight = new Vector3(rend.bounds.max.x, topDeckObject.transform.position.y, rend.bounds.max.z);
-        topDeckGrid = new Grid<GridObject>(gridWidth, gridHeight, 1f, origin, topRight, (Grid<GridObject> g, int x, int y) => new GridObject(g, x, y), gameManager.OnDebug());
+        topDeckGrid = new Grid<GridObject>(gridWidth, gridHeight, 10f, origin, (Grid<GridObject> g, int x, int y) => new GridObject(g, x, y), gameManager.OnDebug());
         Deck topDeck = new Deck(topDeckGrid, topDeckObject);
         deckList[0] = topDeck;
 
         Renderer midRend = middleDeckObject.GetComponent<Renderer>();
         origin = new Vector3(rend.bounds.min.x, middleDeckObject.transform.position.y, rend.bounds.min.z);
-        topRight = new Vector3(rend.bounds.max.x, middleDeckObject.transform.position.y, rend.bounds.max.z);
-        middleDeckGrid = new Grid<GridObject>(gridWidth, gridHeight, 1f, origin, topRight, (Grid<GridObject> g, int x, int y) => new GridObject(g, x, y), gameManager.OnDebug());
+        middleDeckGrid = new Grid<GridObject>(gridWidth, gridHeight, 10f, origin, (Grid<GridObject> g, int x, int y) => new GridObject(g, x, y), gameManager.OnDebug());
         Deck midDeck = new Deck(middleDeckGrid, middleDeckObject);
         deckList[1] = midDeck;
         midDeck.DeckObj().SetActive(false);
 
         Renderer botRend = bottomDeckObject.GetComponent<Renderer>();
         origin = new Vector3(botRend.bounds.min.x, bottomDeckObject.transform.position.y, botRend.bounds.min.z);
-        topRight = new Vector3(botRend.bounds.max.x, bottomDeckObject.transform.position.y, botRend.bounds.max.z);
-        bottomDeckGrid = new Grid<GridObject>(gridWidth, gridHeight, 1f, origin, topRight, (Grid<GridObject> g, int x, int y) => new GridObject(g, x, y), gameManager.OnDebug());
+        bottomDeckGrid = new Grid<GridObject>(gridWidth, gridHeight, 10f, origin, (Grid<GridObject> g, int x, int y) => new GridObject(g, x, y), gameManager.OnDebug());
         Deck botDeck = new Deck(bottomDeckGrid, bottomDeckObject);
         deckList[2] = botDeck;
         botDeck.DeckObj().SetActive(false);
