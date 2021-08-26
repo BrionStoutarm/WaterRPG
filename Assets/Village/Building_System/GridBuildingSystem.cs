@@ -12,18 +12,16 @@ public class GridBuildingSystem : MonoBehaviour
     private Grid<GridObject> grid;
     private BuildingScriptableObject.Dir dir = BuildingScriptableObject.Dir.Down;
 
-    public GameObject gridPlane;
     public GameManager gameManager;
 
     public static GridBuildingSystem Instance;
     public event EventHandler<OnSelectedChangedEventArgs> OnSelectedChanged;
     public class OnSelectedChangedEventArgs : EventArgs {
-        
     }
 
     public Vector3 GetMouseWorldSnappedPosition() {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Debug.DrawLine(ray.GetPoint(100.0f), Camera.main.transform.position, Color.red, 10.0f);
+        //Debug.DrawLine(ray.GetPoint(100.0f), Camera.main.transform.position, Color.red, 10.0f);
 
         RaycastHit hit;
 
@@ -31,7 +29,11 @@ public class GridBuildingSystem : MonoBehaviour
             Vector3 hitPoint = hit.point;
             hitPoint.y = 0f;
             grid.GetXZ(hitPoint, out int x, out int z);
-            return grid.GetWorldPosition(x, z);
+
+            Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
+            Vector3 placeObjectWorldPosition = grid.GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
+
+            return placeObjectWorldPosition;
         }
         return Vector3.zero;
     }
@@ -40,19 +42,23 @@ public class GridBuildingSystem : MonoBehaviour
         return currentPlaceBuilding;
     }
 
+    public void SetActiveGrid(Grid<GridObject> grid) {
+        this.grid = grid;
+    }
+
     public Quaternion GetPlacedObjectRotation() {
         return Quaternion.Euler(0, currentPlaceBuilding.GetRotationAngle(dir), 0);
     }
 
     private void Awake() {
-        int gridWidth = 10;
-        int gridHeight = 10;
+        //int gridWidth = 10;
+        //int gridHeight = 10;
 
-        Renderer rend = gridPlane.GetComponent<Renderer>();
-        Vector3 origin = new Vector3(rend.bounds.min.x, gridPlane.transform.position.y, rend.bounds.min.z);
-        Vector3 topRight = new Vector3(rend.bounds.max.x, gridPlane.transform.position.y, rend.bounds.max.z);
+        //Renderer rend = gridPlane.GetComponent<Renderer>();
+        //Vector3 origin = new Vector3(rend.bounds.min.x, gridPlane.transform.position.y, rend.bounds.min.z);
+        //Vector3 topRight = new Vector3(rend.bounds.max.x, gridPlane.transform.position.y, rend.bounds.max.z);
 
-        grid = new Grid<GridObject>(gridWidth, gridHeight, 10f, origin, topRight, (Grid<GridObject> g, int x, int z) => new GridObject(g, x, z), gameManager.OnDebug());
+        //grid = new Grid<GridObject>(gridWidth, gridHeight, 10f, origin, topRight, (Grid<GridObject> g, int x, int z) => new GridObject(g, x, z), gameManager.OnDebug());
 
         currentPlaceBuilding = buildingTypeList[0];
 
@@ -79,10 +85,15 @@ public class GridBuildingSystem : MonoBehaviour
                 //Test can build 
                 bool canBuild = true;
                 foreach(Vector2Int gridPosition in gridPositionList) {
-                    if(!grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild()) {
-                        //cannot build here
+                    if(gridPosition.x >=0 && gridPosition.y >= 0 && gridPosition.x < grid.Width() && gridPosition.y < grid.Height()) {
+                        if(!grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild()) {
+                            //cannot build here
+                            canBuild = false;
+                            break;
+                        }
+                    }
+                    else {
                         canBuild = false;
-                        break;
                     }
                 }
 
@@ -135,43 +146,52 @@ public class GridBuildingSystem : MonoBehaviour
             Debug.Log(dir);
         }
 
-        if(Input.GetKeyDown(KeyCode.Alpha1)) { currentPlaceBuilding = buildingTypeList[0]; }
-        if (Input.GetKeyDown(KeyCode.Alpha2)) { currentPlaceBuilding = buildingTypeList[1]; }
-        if (Input.GetKeyDown(KeyCode.Alpha3)) { currentPlaceBuilding = buildingTypeList[2]; }
+        if(Input.GetKeyDown(KeyCode.Alpha1)) { 
+            currentPlaceBuilding = buildingTypeList[0]; 
+            if (OnSelectedChanged != null) OnSelectedChanged(this, new OnSelectedChangedEventArgs { });
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2)) { 
+            currentPlaceBuilding = buildingTypeList[1];
+            if (OnSelectedChanged != null) OnSelectedChanged(this, new OnSelectedChangedEventArgs { });
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3)) { 
+            currentPlaceBuilding = buildingTypeList[2];
+            if (OnSelectedChanged != null) OnSelectedChanged(this, new OnSelectedChangedEventArgs { });
+        }
     }
 
-    public class GridObject {
-        private Grid<GridObject> grid;
-        private int x;
-        private int z;
-        private PlacedObject placedObject;
+}
+public class GridObject {
+    private Grid<GridObject> grid;
+    private int x;
+    private int z;
+    private PlacedObject placedObject;
 
-        public GridObject(Grid<GridObject> grid, int x, int z) {
-            this.grid = grid;
-            this.x = x;
-            this.z = z;
-        }
+    public GridObject(Grid<GridObject> grid, int x, int z) {
+        this.grid = grid;
+        this.x = x;
+        this.z = z;
+    }
 
-        public PlacedObject GetPlacedObject() {
-            return placedObject;
-        }
+    public PlacedObject GetPlacedObject() {
+        return placedObject;
+    }
 
-        public void SetPlacedObject(PlacedObject placedObject) {
-            this.placedObject = placedObject;
-            grid.TriggerGridObjectChanged(x, z);
-        }
+    public void SetPlacedObject(PlacedObject placedObject) {
+        this.placedObject = placedObject;
+        grid.TriggerGridObjectChanged(x, z);
+    }
 
-        public void ClearPlacedObject() {
-            placedObject = null;
-            grid.TriggerGridObjectChanged(x, z);
-        }
+    public void ClearPlacedObject() {
+        placedObject = null;
+        grid.TriggerGridObjectChanged(x, z);
+    }
 
-        public bool CanBuild() {
-            return placedObject == null;
-        }
+    public bool CanBuild() {
+        return placedObject == null;
+    }
 
-        public override string ToString() {
-            return x + "," + z + "\n" + placedObject;
-        }
+    public override string ToString() {
+        return x + "," + z + "\n" + placedObject;
     }
 }
