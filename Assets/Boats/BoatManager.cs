@@ -21,7 +21,6 @@ public class BoatManager : MonoBehaviour
     private int currentDeck = 0;
 
     private void Awake() {
-
     }
 
     // Start is called before the first frame update
@@ -41,14 +40,14 @@ public class BoatManager : MonoBehaviour
         middleDeckGrid = new Grid<GridObject>(gridWidth, gridHeight, 10f, origin, (Grid<GridObject> g, int x, int y) => new GridObject(g, x, y), gameManager.OnDebug());
         Deck midDeck = new Deck(middleDeckGrid, middleDeckObject);
         deckList[1] = midDeck;
-        midDeck.DeckObj().SetActive(false);
+        midDeck.SetVisible(false);
 
         Renderer botRend = bottomDeckObject.GetComponent<Renderer>();
         origin = new Vector3(botRend.bounds.min.x, bottomDeckObject.transform.position.y, botRend.bounds.min.z);
         bottomDeckGrid = new Grid<GridObject>(gridWidth, gridHeight, 10f, origin, (Grid<GridObject> g, int x, int y) => new GridObject(g, x, y), gameManager.OnDebug());
         Deck botDeck = new Deck(bottomDeckGrid, bottomDeckObject);
         deckList[2] = botDeck;
-        botDeck.DeckObj().SetActive(false);
+        botDeck.SetVisible(false);
 
         GridBuildingSystem.Instance.SetActiveGrid(deckList[currentDeck].DeckGrid());
     }
@@ -66,9 +65,11 @@ public class BoatManager : MonoBehaviour
             if (currentDeck != 2) {
                 int prevDeck = currentDeck;
                 currentDeck++;
-                deckList[currentDeck].DeckObj().SetActive(true);
-                deckList[prevDeck].DeckObj().SetActive(false);
-
+                deckList[currentDeck].SetVisible(true);
+                deckList[prevDeck].SetVisible(false);
+           
+                //GridBuildingSystem.Instance.SetDeckVisible(true, deckList[currentDeck].DeckGrid());
+                //GridBuildingSystem.Instance.SetDeckVisible(false, deckList[prevDeck].DeckGrid());
                 GridBuildingSystem.Instance.SetActiveGrid(deckList[currentDeck].DeckGrid());
             }
         }
@@ -76,30 +77,42 @@ public class BoatManager : MonoBehaviour
             if (currentDeck != 0) {
                 int prevDeck = currentDeck;
                 currentDeck--;
-                deckList[currentDeck].DeckObj().SetActive(true);
-                deckList[prevDeck].DeckObj().SetActive(false);
+                deckList[currentDeck].SetVisible(true);
+                deckList[prevDeck].SetVisible(false);
 
+                //GridBuildingSystem.Instance.SetDeckVisible(true, deckList[currentDeck].DeckGrid());
+                //GridBuildingSystem.Instance.SetDeckVisible(false, deckList[prevDeck].DeckGrid());
                 GridBuildingSystem.Instance.SetActiveGrid(deckList[currentDeck].DeckGrid());
             }
         }
     }
+    public class Deck {
+        private Grid<GridObject> deckGrid;
+        private GameObject deckObject;
+        private Vector3 originalDeckScale;
+        public Deck(Grid<GridObject> grid, GameObject obj) {
+            deckGrid = grid;
+            deckObject = obj;
+            originalDeckScale = obj.transform.localScale;
+        }
 
+        public Grid<GridObject> DeckGrid() {
+            return deckGrid;
+        }
+
+        public GameObject DeckObj() {
+            return deckObject;
+        }
+
+        public void SetVisible(bool isVisible) {
+            if(isVisible) {
+                deckObject.transform.localScale = originalDeckScale;
+            }
+            else {
+                deckObject.transform.localScale = Vector3.zero;
+            }
+            GridBuildingSystem.Instance.SetDeckVisible(isVisible, deckGrid);
+        }
+    }
 }
 
-public class Deck {
-    private Grid<GridObject> deckGrid;
-    private GameObject deckObject;
-
-    public Deck(Grid<GridObject> grid, GameObject obj) {
-        deckGrid = grid;
-        deckObject = obj;
-    }
-
-    public Grid<GridObject> DeckGrid() {
-        return deckGrid;
-    }
-
-    public GameObject DeckObj() {
-        return deckObject;
-    }
-}

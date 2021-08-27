@@ -12,6 +12,7 @@ public class PlacedObject : MonoBehaviour
         placedObject.buildingType = buildingType;
         placedObject.origin = origin;
         placedObject.dir = dir;
+        placedObject.originalScale = buildingType.prefab.localScale;
 
         return placedObject;
     }
@@ -19,6 +20,7 @@ public class PlacedObject : MonoBehaviour
     private BuildingScriptableObject buildingType;
     private Vector2Int origin;
     private BuildingScriptableObject.Dir dir;
+    private Vector3 originalScale;
 
     public List<Vector2Int> GetGridPositionList() {
         return buildingType.GetGridPositionList(origin, dir);
@@ -26,5 +28,14 @@ public class PlacedObject : MonoBehaviour
 
     public void DestroySelf() {
         Destroy(gameObject);
+    }
+
+    public void SetVisible(bool isVisible) {
+        if(isVisible) {
+            gameObject.transform.localScale = originalScale;
+        }
+        else {
+            gameObject.transform.localScale = Vector3.zero;
+        }
     }
 }

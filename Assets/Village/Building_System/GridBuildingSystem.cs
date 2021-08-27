@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class GridBuildingSystem : MonoBehaviour
 {
@@ -43,6 +44,15 @@ public class GridBuildingSystem : MonoBehaviour
     public void SetActiveGrid(Grid<GridObject> grid) {
         this.grid = grid;
     }
+
+    public void SetDeckVisible(bool isVisible, Grid<GridObject> grid) {
+        for (int i = 0; i < grid.Width(); i++) {
+            for (int j = 0; j < grid.Height(); j++) {
+                grid.GetGridObject(i, j).SetVisible(isVisible);
+            }
+        }
+    }
+
 
     public Quaternion GetPlacedObjectRotation() {
         return Quaternion.Euler(0, currentPlaceBuilding.GetRotationAngle(dir), 0);
@@ -180,5 +190,11 @@ public class GridObject {
 
     public override string ToString() {
         return x + "," + z + "\n" + placedObject;
+    }
+
+    public void SetVisible(bool isVisible) {
+        if(placedObject != null) {
+            placedObject.SetVisible(isVisible);
+        }
     }
 }
