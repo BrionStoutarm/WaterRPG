@@ -15,9 +15,17 @@ public class GridBuildingSystem : MonoBehaviour
 
     public GameManager gameManager;
 
-    public static GridBuildingSystem Instance;
+    private static GridBuildingSystem s_instance;
     public event EventHandler<OnSelectedChangedEventArgs> OnSelectedChanged;
     public class OnSelectedChangedEventArgs : EventArgs {
+    }
+
+    public static GridBuildingSystem Instance {
+        get => s_instance;
+        set {
+            if (value != null)
+                s_instance = value;
+        }
     }
 
     public Vector3 GetMouseWorldSnappedPosition() {
@@ -59,12 +67,18 @@ public class GridBuildingSystem : MonoBehaviour
     }
 
     private void Awake() {
+        if(Instance != null) {
+            Debug.LogError("Multiple Game Managers");
+            return;
+        }
+        Instance = this;
+        
         currentPlaceBuilding = buildingTypeList[0];
 
-        Instance = this;
-        PlayerInput.OnLeftClickEvent += (object sender, PlayerInput.OnLeftClickArgs eventArgs) => {
-            HandleLeftClick(eventArgs.worldPosition);
-        };
+
+        //Register Events to listen to
+        PlayerInput.OnLeftClickEvent += Instance_OnLeftClickEvent;
+        PlayerInput.OnRightClickEvent += Instance_OnRightClickEvent;
     }
 
     private void Instance_OnLeftClickEvent(object sender, PlayerInput.OnLeftClickArgs e) {
@@ -76,7 +90,7 @@ public class GridBuildingSystem : MonoBehaviour
 
         RaycastHit hit;
 
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
             Debug.Log(hit.point);
             Vector3 hitPoint = hit.point;
             hitPoint.y = 0f;
@@ -119,33 +133,33 @@ public class GridBuildingSystem : MonoBehaviour
         }
     }
 
-    private void Update() {
-        
+    private void Instance_OnRightClickEvent(object sender, PlayerInput.OnRightClickArgs e) {
+        Instance.HandleRightClick(e.worldPosition);
+    }
+    private void HandleRightClick(Vector3 mousePosition) {
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
-        //demolish building
-        if(Input.GetMouseButton(1)) {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
 
-            RaycastHit hit;
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
+            Vector3 hitPoint = hit.point;
+            grid.GetXZ(hitPoint, out int x, out int z);
 
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
-                Vector3 hitPoint = hit.point;
-                grid.GetXZ(hitPoint, out int x, out int z);
+            GridObject gridObject = grid.GetGridObject(x, z);
+            PlacedObject placedObject = gridObject.GetPlacedObject();
+            if (placedObject != null) {
+                placedObject.DestroySelf();
 
-                GridObject gridObject = grid.GetGridObject(x,z);
-                PlacedObject placedObject = gridObject.GetPlacedObject();
-                if(placedObject != null) {
-                    placedObject.DestroySelf();
+                List<Vector2Int> gridPositionList = placedObject.GetGridPositionList();
 
-                    List<Vector2Int> gridPositionList = placedObject.GetGridPositionList();
-
-                    foreach (Vector2Int gridPosition in gridPositionList) {
-                        grid.GetGridObject(gridPosition.x, gridPosition.y).ClearPlacedObject();
-                    }
+                foreach (Vector2Int gridPosition in gridPositionList) {
+                    grid.GetGridObject(gridPosition.x, gridPosition.y).ClearPlacedObject();
                 }
             }
         }
+    }
 
+    private void Update() {
         //Rotate current placing building
         if (Input.GetKeyDown(KeyCode.R)) {
             dir = BuildingScriptableObject.GetNextDir(dir);

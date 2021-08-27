@@ -10,6 +10,11 @@ public class PlayerInput : MonoBehaviour
         public Vector3 worldPosition;
     }
 
+    public static event EventHandler<OnRightClickArgs> OnRightClickEvent;
+    public class OnRightClickArgs : EventArgs {
+        public Vector3 worldPosition;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +26,10 @@ public class PlayerInput : MonoBehaviour
     {
         if(Input.GetMouseButtonDown(0)) {
             if (OnLeftClickEvent != null) OnLeftClickEvent(this, new OnLeftClickArgs { worldPosition = Input.mousePosition });
+        }
+
+        if(Input.GetMouseButtonDown(1)) {
+            if (OnRightClickEvent != null) OnRightClickEvent(this, new OnRightClickArgs { worldPosition = Input.mousePosition });
         }
     }
 
@@ -44,21 +53,5 @@ public class PlayerInput : MonoBehaviour
             Debug.Log("Invalid collider");
         }
         Mesh mesh = meshCollider.sharedMesh;
-    }
-
-
-
-
-    private void GameControls() {
-    //    if (Input.GetKeyDown(m_cancel)) {
-    //        Deselect();
-    //        m_gameManager.Unfollow();
-    //        if (m_placer) {
-    //            m_placer.ClearPlacer();
-    //        }
-    //    }
-    //    if (Input.GetKeyDown(m_pause)) {
-    //        m_gameManager.TogglePause();
-    //    }
     }
 }
