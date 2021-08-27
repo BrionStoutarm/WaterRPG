@@ -62,56 +62,65 @@ public class GridBuildingSystem : MonoBehaviour
         currentPlaceBuilding = buildingTypeList[0];
 
         Instance = this;
+        PlayerInput.OnLeftClickEvent += (object sender, PlayerInput.OnLeftClickArgs eventArgs) => {
+            HandleLeftClick(eventArgs.worldPosition);
+        };
     }
-    
-    private void Update() {
-        if (Input.GetMouseButtonDown(0)) {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            RaycastHit hit;
+    private void Instance_OnLeftClickEvent(object sender, PlayerInput.OnLeftClickArgs e) {
+        Instance.HandleLeftClick(e.worldPosition);
+    }
 
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
-                Debug.Log(hit.point);
-                Vector3 hitPoint = hit.point;
-                hitPoint.y = 0f;
+    private void HandleLeftClick(Vector3 mousePosition) {
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
-                grid.GetXZ(hitPoint, out int x, out int z);
+        RaycastHit hit;
 
-                List<Vector2Int> gridPositionList = currentPlaceBuilding.GetGridPositionList(new Vector2Int(x, z), dir);
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
+            Debug.Log(hit.point);
+            Vector3 hitPoint = hit.point;
+            hitPoint.y = 0f;
+
+            grid.GetXZ(hitPoint, out int x, out int z);
+
+            List<Vector2Int> gridPositionList = currentPlaceBuilding.GetGridPositionList(new Vector2Int(x, z), dir);
 
 
-                //Test can build 
-                bool canBuild = true;
-                foreach(Vector2Int gridPosition in gridPositionList) {
-                    if(gridPosition.x >=0 && gridPosition.y >= 0 && gridPosition.x < grid.Width() && gridPosition.y < grid.Height()) {
-                        if(!grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild()) {
-                            //cannot build here
-                            canBuild = false;
-                            break;
-                        }
-                    }
-                    else {
+            //Test can build 
+            bool canBuild = true;
+            foreach (Vector2Int gridPosition in gridPositionList) {
+                if (gridPosition.x >= 0 && gridPosition.y >= 0 && gridPosition.x < grid.Width() && gridPosition.y < grid.Height()) {
+                    if (!grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild()) {
+                        //cannot build here
                         canBuild = false;
-                    }
-                }
-
-                GridObject gridObject = grid.GetGridObject(x, z);
-                if (canBuild) {
-                    Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
-                    Vector3 placeObjectWorldPosition = grid.GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
-
-                    PlacedObject placedObject = PlacedObject.Create(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding);
-
-                    foreach(Vector2Int gridPosition in gridPositionList) {
-                        grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                        break;
                     }
                 }
                 else {
-                    //StaticFunctions.CreateWorldTextPopup("Cannot build here!", hitPoint);
-                    Debug.Log("Cannot build here");
+                    canBuild = false;
                 }
             }
+
+            GridObject gridObject = grid.GetGridObject(x, z);
+            if (canBuild) {
+                Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
+                Vector3 placeObjectWorldPosition = grid.GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
+
+                PlacedObject placedObject = PlacedObject.Create(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding);
+
+                foreach (Vector2Int gridPosition in gridPositionList) {
+                    grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                }
+            }
+            else {
+                //StaticFunctions.CreateWorldTextPopup("Cannot build here!", hitPoint);
+                Debug.Log("Cannot build here");
+            }
         }
+    }
+
+    private void Update() {
+        
 
         //demolish building
         if(Input.GetMouseButton(1)) {

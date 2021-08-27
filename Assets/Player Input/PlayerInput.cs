@@ -1,10 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
-
+    public static event EventHandler<OnLeftClickArgs> OnLeftClickEvent;
+    public class OnLeftClickArgs : EventArgs {
+        public Vector3 worldPosition;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -15,7 +19,9 @@ public class PlayerInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if(Input.GetMouseButtonDown(0)) {
+            if (OnLeftClickEvent != null) OnLeftClickEvent(this, new OnLeftClickArgs { worldPosition = Input.mousePosition });
+        }
     }
 
     //should probably be double click to auto zoom on object
