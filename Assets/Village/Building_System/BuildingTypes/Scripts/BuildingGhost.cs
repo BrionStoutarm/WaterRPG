@@ -8,9 +8,27 @@ public class BuildingGhost : MonoBehaviour
     private BuildingScriptableObject buildingType;
 
     private void Start() {
-        RefreshVisual();
+        //RefreshVisual();
 
         GridBuildingSystem.Instance.OnSelectedChanged += Instance_OnSelectedChanged;
+        GridBuildingSystem.Instance.OnBuildingSysActive += Instance_OnBuildingSysActive;
+    }
+
+    private void Instance_OnBuildingSysActive(object sender, GridBuildingSystem.OnBuildingSysActiveArgs e) {
+        if (e.active) {
+            RefreshVisual();
+        }
+        else {
+            ClearVisual();
+        }
+
+    }
+
+    private void ClearVisual() {
+        if (visual != null) {
+            Destroy(visual.gameObject);
+            visual = null;
+        }
     }
 
     private void Instance_OnSelectedChanged(object sender, System.EventArgs e) {
@@ -18,18 +36,13 @@ public class BuildingGhost : MonoBehaviour
     }
 
     private void LateUpdate() {
-        if (GridBuildingSystem.Instance.IsActive()) {
-            Vector3 targetPosition = GridBuildingSystem.Instance.GetMouseWorldSnappedPosition();
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 15f);
-            transform.rotation = Quaternion.Lerp(transform.rotation, GridBuildingSystem.Instance.GetPlacedObjectRotation(), Time.deltaTime * 15f);
-        }
+        Vector3 targetPosition = GridBuildingSystem.Instance.GetMouseWorldSnappedPosition();
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 15f);
+        transform.rotation = Quaternion.Lerp(transform.rotation, GridBuildingSystem.Instance.GetPlacedObjectRotation(), Time.deltaTime * 15f);
     }
 
     private void RefreshVisual() {
-        if(visual != null) {
-            Destroy(visual.gameObject);
-            visual = null;
-        }
+        ClearVisual();
 
         BuildingScriptableObject buildingObjectType = GridBuildingSystem.Instance.GetPlacedObjectType();
 
@@ -40,5 +53,5 @@ public class BuildingGhost : MonoBehaviour
             visual.localEulerAngles = Vector3.zero;
             //SetLayerRecursive(visual.gameObject, 11);
         }
-    }
+     }
 }

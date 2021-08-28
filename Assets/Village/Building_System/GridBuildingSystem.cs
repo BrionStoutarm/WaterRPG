@@ -17,7 +17,11 @@ public class GridBuildingSystem : MonoBehaviour
 
     private static GridBuildingSystem s_instance;
     public event EventHandler<OnSelectedChangedEventArgs> OnSelectedChanged;
-    public class OnSelectedChangedEventArgs : EventArgs {
+    public class OnSelectedChangedEventArgs : EventArgs { }
+
+    public event EventHandler<OnBuildingSysActiveArgs> OnBuildingSysActive;
+    public class OnBuildingSysActiveArgs : EventArgs {
+        public bool active;
     }
 
     private bool m_isActive = false;
@@ -70,6 +74,11 @@ public class GridBuildingSystem : MonoBehaviour
     public void ToggleActive() {
         m_isActive = !m_isActive;
         Instance.enabled = m_isActive;
+
+        if(OnBuildingSysActive != null) {
+            OnBuildingSysActive(this, new OnBuildingSysActiveArgs { active = m_isActive });
+        }
+
         Debug.Log("GridBuildingSystem is now: " + m_isActive);
     }
 
@@ -79,7 +88,7 @@ public class GridBuildingSystem : MonoBehaviour
 
     private void Awake() {
         if(Instance != null) {
-            Debug.LogError("Multiple Game Managers");
+            Debug.LogError("Multiple Building Systems");
             return;
         }
         Instance = this;
