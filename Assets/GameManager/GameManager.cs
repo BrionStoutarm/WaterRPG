@@ -26,7 +26,6 @@ public class GameManager : MonoBehaviour
     //private bool m_advancingTurn = false;
 
     private static GameManager s_instance;
-    private static GridBuildingSystem s_gridBuildingSystem;
 
     public static GameManager Instance {
         get => s_instance;
@@ -44,8 +43,6 @@ public class GameManager : MonoBehaviour
         }
 
         s_instance = this;
-
-        s_gridBuildingSystem = GridBuildingSystem.Instance;
     }
 
     void Start()
@@ -70,5 +67,9 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public void ToggleBuildSystem() {
+        GridBuildingSystem.Instance.ToggleActive();
     }
 }

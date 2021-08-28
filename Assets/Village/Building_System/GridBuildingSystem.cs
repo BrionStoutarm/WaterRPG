@@ -20,10 +20,12 @@ public class GridBuildingSystem : MonoBehaviour
     public class OnSelectedChangedEventArgs : EventArgs {
     }
 
+    private bool m_isActive = false;
+
     public static GridBuildingSystem Instance {
         get => s_instance;
         set {
-            if (value != null)
+            if (value != null && s_instance == null)
                 s_instance = value;
         }
     }
@@ -61,6 +63,15 @@ public class GridBuildingSystem : MonoBehaviour
         }
     }
 
+    public bool IsActive() {
+        return m_isActive;
+    }
+
+    public void ToggleActive() {
+        m_isActive = !m_isActive;
+        Instance.enabled = m_isActive;
+        Debug.Log("GridBuildingSystem is now: " + m_isActive);
+    }
 
     public Quaternion GetPlacedObjectRotation() {
         return Quaternion.Euler(0, currentPlaceBuilding.GetRotationAngle(dir), 0);
@@ -79,6 +90,8 @@ public class GridBuildingSystem : MonoBehaviour
         //Register Events to listen to
         PlayerInput.OnLeftClickEvent += Instance_OnLeftClickEvent;
         PlayerInput.OnRightClickEvent += Instance_OnRightClickEvent;
+
+        enabled = m_isActive;
     }
 
     private void Instance_OnLeftClickEvent(object sender, PlayerInput.OnLeftClickArgs e) {
@@ -86,49 +99,51 @@ public class GridBuildingSystem : MonoBehaviour
     }
 
     private void HandleLeftClick(Vector3 mousePosition) {
-        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+        if(enabled) {
+            Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
-        RaycastHit hit;
+            RaycastHit hit;
 
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
-            Debug.Log(hit.point);
-            Vector3 hitPoint = hit.point;
-            hitPoint.y = 0f;
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
+                Debug.Log(hit.point);
+                Vector3 hitPoint = hit.point;
+                hitPoint.y = 0f;
 
-            grid.GetXZ(hitPoint, out int x, out int z);
+                grid.GetXZ(hitPoint, out int x, out int z);
 
-            List<Vector2Int> gridPositionList = currentPlaceBuilding.GetGridPositionList(new Vector2Int(x, z), dir);
+                List<Vector2Int> gridPositionList = currentPlaceBuilding.GetGridPositionList(new Vector2Int(x, z), dir);
 
 
-            //Test can build 
-            bool canBuild = true;
-            foreach (Vector2Int gridPosition in gridPositionList) {
-                if (gridPosition.x >= 0 && gridPosition.y >= 0 && gridPosition.x < grid.Width() && gridPosition.y < grid.Height()) {
-                    if (!grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild()) {
-                        //cannot build here
+                //Test can build 
+                bool canBuild = true;
+                foreach (Vector2Int gridPosition in gridPositionList) {
+                    if (gridPosition.x >= 0 && gridPosition.y >= 0 && gridPosition.x < grid.Width() && gridPosition.y < grid.Height()) {
+                        if (!grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild()) {
+                            //cannot build here
+                            canBuild = false;
+                            break;
+                        }
+                    }
+                    else {
                         canBuild = false;
-                        break;
+                    }
+                }
+
+                GridObject gridObject = grid.GetGridObject(x, z);
+                if (canBuild) {
+                    Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
+                    Vector3 placeObjectWorldPosition = grid.GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
+
+                    PlacedObject placedObject = PlacedObject.Create(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding);
+
+                    foreach (Vector2Int gridPosition in gridPositionList) {
+                        grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
                     }
                 }
                 else {
-                    canBuild = false;
+                    //StaticFunctions.CreateWorldTextPopup("Cannot build here!", hitPoint);
+                    Debug.Log("Cannot build here");
                 }
-            }
-
-            GridObject gridObject = grid.GetGridObject(x, z);
-            if (canBuild) {
-                Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
-                Vector3 placeObjectWorldPosition = grid.GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
-
-                PlacedObject placedObject = PlacedObject.Create(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding);
-
-                foreach (Vector2Int gridPosition in gridPositionList) {
-                    grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
-                }
-            }
-            else {
-                //StaticFunctions.CreateWorldTextPopup("Cannot build here!", hitPoint);
-                Debug.Log("Cannot build here");
             }
         }
     }
@@ -137,23 +152,25 @@ public class GridBuildingSystem : MonoBehaviour
         Instance.HandleRightClick(e.worldPosition);
     }
     private void HandleRightClick(Vector3 mousePosition) {
-        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+        if(enabled) {
+            Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
-        RaycastHit hit;
+            RaycastHit hit;
 
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
-            Vector3 hitPoint = hit.point;
-            grid.GetXZ(hitPoint, out int x, out int z);
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
+                Vector3 hitPoint = hit.point;
+                grid.GetXZ(hitPoint, out int x, out int z);
 
-            GridObject gridObject = grid.GetGridObject(x, z);
-            PlacedObject placedObject = gridObject.GetPlacedObject();
-            if (placedObject != null) {
-                placedObject.DestroySelf();
+                GridObject gridObject = grid.GetGridObject(x, z);
+                PlacedObject placedObject = gridObject.GetPlacedObject();
+                if (placedObject != null) {
+                    placedObject.DestroySelf();
 
-                List<Vector2Int> gridPositionList = placedObject.GetGridPositionList();
+                    List<Vector2Int> gridPositionList = placedObject.GetGridPositionList();
 
-                foreach (Vector2Int gridPosition in gridPositionList) {
-                    grid.GetGridObject(gridPosition.x, gridPosition.y).ClearPlacedObject();
+                    foreach (Vector2Int gridPosition in gridPositionList) {
+                        grid.GetGridObject(gridPosition.x, gridPosition.y).ClearPlacedObject();
+                    }
                 }
             }
         }

@@ -18,9 +18,11 @@ public class BuildingGhost : MonoBehaviour
     }
 
     private void LateUpdate() {
-        Vector3 targetPosition = GridBuildingSystem.Instance.GetMouseWorldSnappedPosition();
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 15f);
-        transform.rotation = Quaternion.Lerp(transform.rotation, GridBuildingSystem.Instance.GetPlacedObjectRotation(), Time.deltaTime * 15f);
+        if (GridBuildingSystem.Instance.IsActive()) {
+            Vector3 targetPosition = GridBuildingSystem.Instance.GetMouseWorldSnappedPosition();
+            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 15f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, GridBuildingSystem.Instance.GetPlacedObjectRotation(), Time.deltaTime * 15f);
+        }
     }
 
     private void RefreshVisual() {

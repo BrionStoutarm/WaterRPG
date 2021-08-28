@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,18 +17,57 @@ public class BoatManager : MonoBehaviour
     public GameObject middleDeckObject;
     public GameObject bottomDeckObject;
 
-    public GameManager gameManager;
-
     private int currentDeck = 0;
+    private GameManager gameManager;
+
+    private static BoatManager s_instance;
+    public static BoatManager Instance {
+        get => s_instance;
+        set {
+            if(value != null && s_instance == null) {
+                s_instance = value;
+            }
+        }
+    }
 
     private void Awake() {
+        if (Instance == null) {
+            Instance = this;
+        }
+
+        PlayerInput.OnUpArrowEvent += Instance_OnUpArrowEvent;
+        PlayerInput.OnDownArrowEvent += Instance_OnDownEvent;
+
+    }
+
+    private void Instance_OnDownEvent(object sender, PlayerInput.OnDownArrowArgs e) {
+        if (currentDeck != 2) {
+            int prevDeck = currentDeck;
+            currentDeck++;
+            deckList[currentDeck].SetVisible(true);
+            deckList[prevDeck].SetVisible(false);
+
+            GridBuildingSystem.Instance.SetActiveGrid(deckList[currentDeck].DeckGrid());
+        }
+    }
+
+    private void Instance_OnUpArrowEvent(object sender, PlayerInput.OnUpArrowArgs e) {
+
+        if (currentDeck != 0) {
+            int prevDeck = currentDeck;
+            currentDeck--;
+            deckList[currentDeck].SetVisible(true);
+            deckList[prevDeck].SetVisible(false);
+
+            GridBuildingSystem.Instance.SetActiveGrid(deckList[currentDeck].DeckGrid());
+        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        gameManager = GameManager.Instance;
         deckList = new Deck[3];
-
 
         Renderer rend = topDeckObject.GetComponent<Renderer>();
         Vector3 origin = new Vector3(rend.bounds.min.x, topDeckObject.transform.position.y, rend.bounds.min.z);
@@ -61,31 +101,9 @@ public class BoatManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.DownArrow)) {
-            if (currentDeck != 2) {
-                int prevDeck = currentDeck;
-                currentDeck++;
-                deckList[currentDeck].SetVisible(true);
-                deckList[prevDeck].SetVisible(false);
-           
-                //GridBuildingSystem.Instance.SetDeckVisible(true, deckList[currentDeck].DeckGrid());
-                //GridBuildingSystem.Instance.SetDeckVisible(false, deckList[prevDeck].DeckGrid());
-                GridBuildingSystem.Instance.SetActiveGrid(deckList[currentDeck].DeckGrid());
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.UpArrow)) {
-            if (currentDeck != 0) {
-                int prevDeck = currentDeck;
-                currentDeck--;
-                deckList[currentDeck].SetVisible(true);
-                deckList[prevDeck].SetVisible(false);
 
-                //GridBuildingSystem.Instance.SetDeckVisible(true, deckList[currentDeck].DeckGrid());
-                //GridBuildingSystem.Instance.SetDeckVisible(false, deckList[prevDeck].DeckGrid());
-                GridBuildingSystem.Instance.SetActiveGrid(deckList[currentDeck].DeckGrid());
-            }
-        }
     }
+
     public class Deck {
         private Grid<GridObject> deckGrid;
         private GameObject deckObject;
