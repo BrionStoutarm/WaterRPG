@@ -38,14 +38,14 @@ public partial class BoatManager : MonoBehaviour
     private void Instance_OnDownEvent(object sender, PlayerInput.OnDownArrowArgs e) {
         Deck nextDeck = boatObject.GetNextBelowDeck();
         if(nextDeck != null) {
-            GridBuildingSystem.Instance.SetActiveGrid(nextDeck.DeckGrid());
+            GridBuildingSystem.Instance.SetActiveGrid(nextDeck);
         }
     }
 
     private void Instance_OnUpArrowEvent(object sender, PlayerInput.OnUpArrowArgs e) {
         Deck nextDeck = boatObject.GetNextAboveDeck();
         if (nextDeck != null) {
-            GridBuildingSystem.Instance.SetActiveGrid(nextDeck.DeckGrid());
+            GridBuildingSystem.Instance.SetActiveGrid(nextDeck);
         }
     }
 
@@ -72,7 +72,7 @@ public partial class BoatManager : MonoBehaviour
         //deckList[2] = botDeck;
         //botDeck.SetVisible(false);
 
-        GridBuildingSystem.Instance.SetActiveGrid(boatObject.GetDeck(0).DeckGrid());
+        GridBuildingSystem.Instance.SetActiveGrid(boatObject.GetDeck(0));
     }
 
     //private void OnDrawGizmos() {

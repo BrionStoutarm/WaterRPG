@@ -47,22 +47,22 @@ public class PlaceableScriptableObject : ScriptableObject
         }
     }
 
-    public List<Vector2Int> GetGridPositionList(Vector2Int offset, Dir dir) {
+    public List<Vector2Int> GetGridPositionList(Vector2Int offset, Dir dir, int cellScale) {
         List<Vector2Int> gridPositionList = new List<Vector2Int>();
         switch (dir) {
             default:
             case Dir.Down:
             case Dir.Up:
-                for (int x = 0; x < width; x++) {
-                    for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width * cellScale; x++) {
+                    for (int y = 0; y < height * cellScale; y++) {
                         gridPositionList.Add(offset + new Vector2Int(x, y));
                     }
                 }
                 break;
             case Dir.Left:
             case Dir.Right:
-                for (int x = 0; x < height; x++) {
-                    for (int y = 0; y < width; y++) {
+                for (int x = 0; x < height * cellScale; x++) {
+                    for (int y = 0; y < width * cellScale; y++) {
                         gridPositionList.Add(offset + new Vector2Int(x, y));
                     }
                 }

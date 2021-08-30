@@ -10,7 +10,8 @@ public class GridBuildingSystem : MonoBehaviour
     [SerializeField] private List<PlaceableScriptableObject> buildingTypeList;
     private PlaceableScriptableObject currentPlaceBuilding;
 
-    private Grid<GridObject> grid;
+    private Deck activeDeck;
+    private int activeGridScale = 1;
     private PlaceableScriptableObject.Dir dir = PlaceableScriptableObject.Dir.Down;
 
     public GameManager gameManager;
@@ -41,10 +42,10 @@ public class GridBuildingSystem : MonoBehaviour
 
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
             Vector3 hitPoint = hit.point;
-            grid.GetXZ(hitPoint, out int x, out int z);
+            activeDeck.DeckGrid().GetXZ(hitPoint, out int x, out int z);
 
             Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
-            Vector3 placeObjectWorldPosition = grid.GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
+            Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckScale();
 
             return placeObjectWorldPosition;
         }
@@ -55,8 +56,13 @@ public class GridBuildingSystem : MonoBehaviour
         return currentPlaceBuilding;
     }
 
-    public void SetActiveGrid(Grid<GridObject> grid) {
-        this.grid = grid;
+    public void SetActiveGrid(int gridScale) {
+        activeGridScale = gridScale;
+    }
+
+    public void SetActiveGrid(Deck activeDeck) {
+        this.activeDeck = activeDeck;
+        activeGridScale = activeDeck.DeckScale();
     }
 
     public void SetDeckVisible(bool isVisible, Grid<GridObject> grid) {
@@ -99,7 +105,7 @@ public class GridBuildingSystem : MonoBehaviour
         //Register Events to listen to
         PlayerInput.OnLeftClickEvent += Instance_OnLeftClickEvent;
         PlayerInput.OnRightClickEvent += Instance_OnRightClickEvent;
-
+        activeGridScale = 1;
         enabled = m_isActive;
     }
 
@@ -118,16 +124,16 @@ public class GridBuildingSystem : MonoBehaviour
                 Vector3 hitPoint = hit.point;
                 hitPoint.y = 0f;
 
-                grid.GetXZ(hitPoint, out int x, out int z);
+                activeDeck.DeckGrid().GetXZ(hitPoint, out int x, out int z);
 
-                List<Vector2Int> gridPositionList = currentPlaceBuilding.GetGridPositionList(new Vector2Int(x, z), dir);
+                List<Vector2Int> gridPositionList = currentPlaceBuilding.GetGridPositionList(new Vector2Int(x, z), dir, activeGridScale);
 
 
                 //Test can build 
                 bool canBuild = true;
                 foreach (Vector2Int gridPosition in gridPositionList) {
-                    if (gridPosition.x >= 0 && gridPosition.y >= 0 && gridPosition.x < grid.Width() && gridPosition.y < grid.Height()) {
-                        if (!grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild()) {
+                    if (gridPosition.x >= 0 && gridPosition.y >= 0 && gridPosition.x < activeDeck.DeckGrid().Width() && gridPosition.y < activeDeck.DeckGrid().Height()) {
+                        if (!activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).CanBuild()) {
                             //cannot build here
                             canBuild = false;
                             break;
@@ -138,15 +144,15 @@ public class GridBuildingSystem : MonoBehaviour
                     }
                 }
 
-                GridObject gridObject = grid.GetGridObject(x, z);
+                GridObject gridObject = activeDeck.DeckGrid().GetGridObject(x, z);
                 if (canBuild) {
                     Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
-                    Vector3 placeObjectWorldPosition = grid.GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
+                    Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
 
-                    PlacedObject placedObject = PlacedObject.Create(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding);
+                    PlacedObject placedObject = PlacedObject.Create(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
 
                     foreach (Vector2Int gridPosition in gridPositionList) {
-                        grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                        activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
                     }
                 }
                 else {
@@ -168,9 +174,9 @@ public class GridBuildingSystem : MonoBehaviour
 
             if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
                 Vector3 hitPoint = hit.point;
-                grid.GetXZ(hitPoint, out int x, out int z);
+                activeDeck.DeckGrid().GetXZ(hitPoint, out int x, out int z);
 
-                GridObject gridObject = grid.GetGridObject(x, z);
+                GridObject gridObject = activeDeck.DeckGrid().GetGridObject(x, z);
                 PlacedObject placedObject = gridObject.GetPlacedObject();
                 if (placedObject != null) {
                     placedObject.DestroySelf();
@@ -178,7 +184,7 @@ public class GridBuildingSystem : MonoBehaviour
                     List<Vector2Int> gridPositionList = placedObject.GetGridPositionList();
 
                     foreach (Vector2Int gridPosition in gridPositionList) {
-                        grid.GetGridObject(gridPosition.x, gridPosition.y).ClearPlacedObject();
+                        activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).ClearPlacedObject();
                     }
                 }
             }

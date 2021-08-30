@@ -7,7 +7,7 @@ public class BoatObject : MonoBehaviour {
     public class GridSize {
         public int width;
         public int height;
-        public float cellSize;
+        public int gridScale;
     }
 
     public GameObject[] deckObjects;
@@ -22,8 +22,8 @@ public class BoatObject : MonoBehaviour {
         for(int i = 0; i < deckObjects.Length; i++) {
             GameObject deckObject = deckObjects[i];
             Vector2Int gridSize = new Vector2Int(gridSizes[i].width, gridSizes[i].height);
-
-            deckData.Add(new Deck(deckObject, gridSize, gridSizes[i].cellSize));
+            int gridScale = gridSizes[i].gridScale;
+            deckData.Add(new Deck(deckObject, gridSize, gridScale));
         }
     }
 
