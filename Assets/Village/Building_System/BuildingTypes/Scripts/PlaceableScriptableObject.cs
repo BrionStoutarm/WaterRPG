@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName ="BuildingScriptableObject", menuName ="ScriptableObjects/BuildingType")]
-public class BuildingScriptableObject : ScriptableObject
+public class PlaceableScriptableObject : ScriptableObject
 {
     public static Dir GetNextDir(Dir dir) {
         switch(dir) {

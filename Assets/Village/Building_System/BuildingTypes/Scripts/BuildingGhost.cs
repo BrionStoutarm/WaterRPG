@@ -5,7 +5,7 @@ using UnityEngine;
 public class BuildingGhost : MonoBehaviour
 {
     private Transform visual;
-    private BuildingScriptableObject buildingType;
+    private PlaceableScriptableObject buildingType;
 
     private void Start() {
         //RefreshVisual();
@@ -44,7 +44,7 @@ public class BuildingGhost : MonoBehaviour
     private void RefreshVisual() {
         ClearVisual();
 
-        BuildingScriptableObject buildingObjectType = GridBuildingSystem.Instance.GetPlacedObjectType();
+        PlaceableScriptableObject buildingObjectType = GridBuildingSystem.Instance.GetPlacedObjectType();
 
         if(buildingObjectType != null) {
             visual = Instantiate(buildingObjectType.visual, Vector3.zero, Quaternion.identity);

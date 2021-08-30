@@ -4,26 +4,26 @@ using UnityEngine;
 
 public class PlacedObject : MonoBehaviour
 {
-    public static PlacedObject Create(Vector3 worldPosition, Vector2Int origin, BuildingScriptableObject.Dir dir, BuildingScriptableObject buildingType) {
-        Transform placedObjectTransform = Instantiate(buildingType.prefab, worldPosition, Quaternion.Euler(0, buildingType.GetRotationAngle(dir), 0));
+    public static PlacedObject Create(Vector3 worldPosition, Vector2Int origin, PlaceableScriptableObject.Dir dir, PlaceableScriptableObject placeableType) {
+        Transform placedObjectTransform = Instantiate(placeableType.prefab, worldPosition, Quaternion.Euler(0, placeableType.GetRotationAngle(dir), 0));
 
         PlacedObject placedObject = placedObjectTransform.GetComponent<PlacedObject>();
 
-        placedObject.buildingType = buildingType;
+        placedObject.placeableType = placeableType;
         placedObject.origin = origin;
         placedObject.dir = dir;
-        placedObject.originalScale = buildingType.prefab.localScale;
+        placedObject.originalScale = placeableType.prefab.localScale;
 
         return placedObject;
     }
 
-    private BuildingScriptableObject buildingType;
+    private PlaceableScriptableObject placeableType;
     private Vector2Int origin;
-    private BuildingScriptableObject.Dir dir;
+    private PlaceableScriptableObject.Dir dir;
     private Vector3 originalScale;
 
     public List<Vector2Int> GetGridPositionList() {
-        return buildingType.GetGridPositionList(origin, dir);
+        return placeableType.GetGridPositionList(origin, dir);
     }
 
     public void DestroySelf() {

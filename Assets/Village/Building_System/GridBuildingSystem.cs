@@ -7,11 +7,11 @@ using UnityEngine.Rendering;
 
 public class GridBuildingSystem : MonoBehaviour
 {
-    [SerializeField] private List<BuildingScriptableObject> buildingTypeList;
-    private BuildingScriptableObject currentPlaceBuilding;
+    [SerializeField] private List<PlaceableScriptableObject> buildingTypeList;
+    private PlaceableScriptableObject currentPlaceBuilding;
 
     private Grid<GridObject> grid;
-    private BuildingScriptableObject.Dir dir = BuildingScriptableObject.Dir.Down;
+    private PlaceableScriptableObject.Dir dir = PlaceableScriptableObject.Dir.Down;
 
     public GameManager gameManager;
 
@@ -51,7 +51,7 @@ public class GridBuildingSystem : MonoBehaviour
         return Vector3.zero;
     }
 
-    public BuildingScriptableObject GetPlacedObjectType() {
+    public PlaceableScriptableObject GetPlacedObjectType() {
         return currentPlaceBuilding;
     }
 
@@ -188,7 +188,7 @@ public class GridBuildingSystem : MonoBehaviour
     private void Update() {
         //Rotate current placing building
         if (Input.GetKeyDown(KeyCode.R)) {
-            dir = BuildingScriptableObject.GetNextDir(dir);
+            dir = PlaceableScriptableObject.GetNextDir(dir);
             Debug.Log(dir);
         }
 
