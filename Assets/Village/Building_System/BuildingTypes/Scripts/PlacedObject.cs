@@ -40,4 +40,8 @@ public class PlacedObject : MonoBehaviour
             gameObject.transform.localScale = Vector3.zero;
         }
     }
+
+    public string GetObjectName() {
+        return placeableType.nameString;
+    }
 }

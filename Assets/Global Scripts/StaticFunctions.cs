@@ -38,6 +38,15 @@ public static class StaticFunctions {
         return worldPosition;
     }
 
+    //Can add mask parameters so different classes can use it
+    public static RaycastHit GetMouseRaycastHit() {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        Physics.Raycast(ray, out hit);
+        
+        return hit;
+    }
+
     public static bool IsPointerOverUIElement() {
         return IsPointerOverUIElement(GetEventSystemRaycastResults());
     }

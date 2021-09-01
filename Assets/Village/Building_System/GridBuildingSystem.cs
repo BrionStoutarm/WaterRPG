@@ -62,6 +62,18 @@ public class GridBuildingSystem : MonoBehaviour
         return currentPlaceBuilding;
     }
 
+    public PlacedObject GetPlacedObjectAtWorldPosition(Vector3 worldPosition) {
+        GridObject gridObject = activeDeck.DeckGrid().GetGridObject(worldPosition);
+        PlacedObject placedObject = gridObject.GetPlacedObject();
+        return placedObject;
+    }
+
+    public PlacedObject GetObjectAtGridPosition(int x, int z) {
+        GridObject gridObject = activeDeck.DeckGrid().GetGridObject(x, z);
+        PlacedObject placedObject = gridObject.GetPlacedObject();
+        return placedObject;
+    }
+
     public void SetActiveGrid(int gridScale) {
         activeGridScale = gridScale;
     }
@@ -176,26 +188,27 @@ public class GridBuildingSystem : MonoBehaviour
     }
     private void HandleRightClick(Vector3 mousePosition) {
         if(enabled) {
-            Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+            ToggleActive();
+            //Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
-            RaycastHit hit;
+            //RaycastHit hit;
 
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
-                Vector3 hitPoint = hit.point;
-                activeDeck.DeckGrid().GetXZ(hitPoint, out int x, out int z);
+            //if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
+            //    Vector3 hitPoint = hit.point;
+            //    activeDeck.DeckGrid().GetXZ(hitPoint, out int x, out int z);
 
-                GridObject gridObject = activeDeck.DeckGrid().GetGridObject(x, z);
-                PlacedObject placedObject = gridObject.GetPlacedObject();
-                if (placedObject != null) {
-                    placedObject.DestroySelf();
+            //    GridObject gridObject = activeDeck.DeckGrid().GetGridObject(x, z);
+            //    PlacedObject placedObject = gridObject.GetPlacedObject();
+            //    if (placedObject != null) {
+            //        placedObject.DestroySelf();
 
-                    List<Vector2Int> gridPositionList = placedObject.GetGridPositionList();
+            //        List<Vector2Int> gridPositionList = placedObject.GetGridPositionList();
 
-                    foreach (Vector2Int gridPosition in gridPositionList) {
-                        activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).ClearPlacedObject();
-                    }
-                }
-            }
+            //        foreach (Vector2Int gridPosition in gridPositionList) {
+            //            activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).ClearPlacedObject();
+            //        }
+            //    }
+            //}
         }
     }
 
