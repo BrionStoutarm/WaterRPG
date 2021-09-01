@@ -17,9 +17,13 @@ public class BoatObject : MonoBehaviour {
     private int currentDeck = 0;
 
     private void Start() {
+
+    }
+
+    public void InitializeBoat() {
         deckData = new List<Deck>();
 
-        for(int i = 0; i < deckObjects.Length; i++) {
+        for (int i = 0; i < deckObjects.Length; i++) {
             GameObject deckObject = deckObjects[i];
             Vector2Int gridSize = new Vector2Int(gridSizes[i].width, gridSizes[i].height);
             int gridScale = gridSizes[i].gridScale;

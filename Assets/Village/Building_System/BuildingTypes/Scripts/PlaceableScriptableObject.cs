@@ -37,13 +37,13 @@ public class PlaceableScriptableObject : ScriptableObject
         }
     }
 
-    public Vector2Int GetRotationOffset(Dir dir) {
+    public Vector2Int GetRotationOffset(Dir dir, int cellScale) {
         switch(dir) {
             default:
             case Dir.Down:  return new Vector2Int(0, 0);
-            case Dir.Left:  return new Vector2Int(0, width);
-            case Dir.Up:    return new Vector2Int(width, height);
-            case Dir.Right: return new Vector2Int(height, 0);
+            case Dir.Left:  return new Vector2Int(0, width * cellScale);
+            case Dir.Up:    return new Vector2Int(width * cellScale, height *cellScale);
+            case Dir.Right: return new Vector2Int(height * cellScale, 0);
         }
     }
 

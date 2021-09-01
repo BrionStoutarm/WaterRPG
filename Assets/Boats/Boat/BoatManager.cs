@@ -71,7 +71,7 @@ public partial class BoatManager : MonoBehaviour
         //DeckScriptableObject botDeck = new DeckScriptableObject(bottomDeckGrid, bottomDeckObject);
         //deckList[2] = botDeck;
         //botDeck.SetVisible(false);
-
+        boatObject.InitializeBoat();
         GridBuildingSystem.Instance.SetActiveGrid(boatObject.GetDeck(0));
     }
 

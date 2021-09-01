@@ -25,6 +25,12 @@ public class GridBuildingSystem : MonoBehaviour
         public bool active;
     }
 
+    //temporary i think, for villager testing purposes
+    public event EventHandler<OnPlacedBuildingArgs> OnPlacedBuilding;
+    public class OnPlacedBuildingArgs : EventArgs {
+        public PlacedObject placedObject; //should subclass this to be a building, as there will be more placeable objects
+    }
+
     private bool m_isActive = false;
 
     public static GridBuildingSystem Instance {
@@ -44,8 +50,8 @@ public class GridBuildingSystem : MonoBehaviour
             Vector3 hitPoint = hit.point;
             activeDeck.DeckGrid().GetXZ(hitPoint, out int x, out int z);
 
-            Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
-            Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckScale();
+            Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir, activeDeck.DeckScale());
+            Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
 
             return placeObjectWorldPosition;
         }
@@ -146,10 +152,12 @@ public class GridBuildingSystem : MonoBehaviour
 
                 GridObject gridObject = activeDeck.DeckGrid().GetGridObject(x, z);
                 if (canBuild) {
-                    Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir);
+                    Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir, activeDeck.DeckScale());
                     Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
 
                     PlacedObject placedObject = PlacedObject.Create(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
+
+                    if(OnPlacedBuilding != null) { OnPlacedBuilding(this, new OnPlacedBuildingArgs { placedObject = placedObject }); }
 
                     foreach (Vector2Int gridPosition in gridPositionList) {
                         activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
