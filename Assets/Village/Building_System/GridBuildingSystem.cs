@@ -17,6 +17,7 @@ public class GridBuildingSystem : MonoBehaviour
     public GameManager gameManager;
 
     private static GridBuildingSystem s_instance;
+
     public event EventHandler<OnSelectedChangedEventArgs> OnSelectedChanged;
     public class OnSelectedChangedEventArgs : EventArgs { }
 

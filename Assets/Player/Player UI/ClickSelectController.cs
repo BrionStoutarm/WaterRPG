@@ -1,16 +1,25 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class PlayerUI : MonoBehaviour
+public class ClickSelectController : MonoBehaviour
 {
-    Text currentSelectedObjectText;
+    [SerializeField] private Camera m_camera;
+
+    public static event Action<PlacedObject> OnSelectedObjectChanged;
+
+    public static PlacedObject SelectedObject { get; private set; }
+
+    string text;
+    private void Awake() {
+        PlayerInput.OnLeftClickEvent += HandleLeftClick;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        currentSelectedObjectText = GameObject.Find("SelectedObjectText").GetComponent<Text>();
-        PlayerInput.OnLeftClickEvent += HandleLeftClick;
+        
     }
 
     // Update is called once per frame
@@ -20,11 +29,11 @@ public class PlayerUI : MonoBehaviour
     }
 
     private void HandleLeftClick(object sender, PlayerInput.OnLeftClickArgs args) {
-        if(!GridBuildingSystem.Instance.IsActive()) {
+        if (!GridBuildingSystem.Instance.IsActive()) {
             RaycastHit hit = StaticFunctions.GetMouseRaycastHit();
             PlacedObject placedObject = GridBuildingSystem.Instance.GetPlacedObjectAtWorldPosition(hit.point);
-            if(placedObject != null) {
-                currentSelectedObjectText.text = placedObject.GetObjectName();
+            if (placedObject != null) {
+                text = placedObject.GetObjectName();
             }
             else {
                 Debug.Log("Didnt hit placedObject");

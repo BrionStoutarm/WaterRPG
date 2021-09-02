@@ -5,6 +5,36 @@ EditorUserSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 4
   m_ConfigSettings:
+    RecentlyUsedScenePath-0:
+      value: 224247031146464d0402002317267d1f1703563f22213229
+      flags: 0
+    RecentlyUsedScenePath-1:
+      value: 224247031146466b010f1527026c6f1c170e1d386c1d0f7f18005326ece92021
+      flags: 0
+    RecentlyUsedScenePath-2:
+      value: 2242470311464659020f181d1426521f580216233831
+      flags: 0
+    RecentlyUsedScenePath-3:
+      value: 22424703114646480c031c2e156d4a1e1f0301
+      flags: 0
+    RecentlyUsedScenePath-4:
+      value: 22424703114646480e0b02275e365119020e
+      flags: 0
+    RecentlyUsedScenePath-5:
+      value: 224247031146464d0402002317264d2f12121525623d28393930
+      flags: 0
+    RecentlyUsedScenePath-6:
+      value: 224247031146464c0c1a09302f275a1d19590d24253c3f
+      flags: 0
+    RecentlyUsedScenePath-7:
+      value: 224247031146464c021c00261d224f2f12121525623d28393930
+      flags: 0
+    RecentlyUsedScenePath-8:
+      value: 22424703114646680e0b0227036c6a39580216233831
+      flags: 0
+    RecentlyUsedScenePath-9:
+      value: 22424703114646680e0b0227036c49191a1b192d290a29313967083debf42d
+      flags: 0
     UnityEditor.ShaderGraph.FloatingWindowsLayout2:
       value: 181344140043005e1a220d3b1f364b524c0c5a27130c293326201334cee5322ca0bd30e8eb293a707b0fd0180b3d0a36fc0d3d04e649500d1002ee0b5dbd1d2c27c00ad113cb1e10e41f1addc80993b987849aba94a9eae7f6d0b2fbeeffe0ecf4fd8afdacbbf9d4e8f5afe9e1928b86ccf584cdd6c38b9da190c991e48287869786c994c0c5828a80ddeeddbf8debe691ada5959ea796aa8f9ab0b379bcba74243d73f8b187928fbeb2648d755c818e6635dc6d659f8ac0cb9f40a89b8d9a864c9dad9456d9c08f738b48d223425f5564477c5c695963435d6f7f5b492f7b22736874366a764800213d39584b4e6a49496e334d293d5812606e184f6f1e15596e690e4e5914034c483a63795c7b706d796a573f6b4d7b7f705360002fac7539e22220e3f705fb3efbe7e915c30a25f5b4ade348144a5c41585ab3438e820d5a9896439a894a0201
       flags: 0
@@ -18,5 +48,7 @@ EditorUserSettings:
   m_SemanticMergeMode: 2
   m_VCShowFailedCheckout: 1
   m_VCOverwriteFailedCheckoutAssets: 1
-  m_VCOverlayIcons: 1
+  m_VCProjectOverlayIcons: 1
+  m_VCHierarchyOverlayIcons: 1
+  m_VCOtherOverlayIcons: 1
   m_VCAllowAsyncUpdate: 0
