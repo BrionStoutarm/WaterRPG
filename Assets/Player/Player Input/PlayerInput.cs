@@ -45,8 +45,8 @@ public class PlayerInput : MonoBehaviour
         }
     }
 
-        //should probably be double click to auto zoom on object
-        private void HandleLeftClick()
+    //should probably be double click to auto zoom on object
+    private void HandleLeftClick()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         //Debug.DrawLine(ray.GetPoint(100.0f), Camera.main.transform.position, Color.red, 10.0f);

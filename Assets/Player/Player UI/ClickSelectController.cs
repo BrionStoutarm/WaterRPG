@@ -6,6 +6,7 @@ using UnityEngine;
 public class ClickSelectController : MonoBehaviour
 {
     [SerializeField] private Camera m_camera;
+    [SerializeField] private SelectedObjectArea m_selectedObjectArea;
 
     public static event Action<PlacedObject> OnSelectedObjectChanged;
 
@@ -14,6 +15,7 @@ public class ClickSelectController : MonoBehaviour
     string text;
     private void Awake() {
         PlayerInput.OnLeftClickEvent += HandleLeftClick;
+        PlayerInput.OnRightClickEvent += HandleRightClick;
     }
 
     // Start is called before the first frame update
@@ -34,6 +36,21 @@ public class ClickSelectController : MonoBehaviour
             PlacedObject placedObject = GridBuildingSystem.Instance.GetPlacedObjectAtWorldPosition(hit.point);
             if (placedObject != null) {
                 text = placedObject.GetObjectName();
+                m_selectedObjectArea.UpdateUI(placedObject);
+                SelectedObject = placedObject;
+            }
+            else {
+                Debug.Log("Didnt hit placedObject");
+            }
+        }
+    }
+
+    private void HandleRightClick(object sender, PlayerInput.OnRightClickArgs args) {
+        if (!GridBuildingSystem.Instance.IsActive()) {
+          
+            if (SelectedObject != null) {
+                m_selectedObjectArea.Clear();
+                SelectedObject = null;
             }
             else {
                 Debug.Log("Didnt hit placedObject");

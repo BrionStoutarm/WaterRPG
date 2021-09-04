@@ -14,6 +14,7 @@ public class PlacedObject : MonoBehaviour
         placedObject.dir = dir;
         placedObject.originalScale = placeableType.prefab.localScale;
         placedObject.cellScale = cellScale;
+        placedObject.BindActions();
 
         return placedObject;
     }
@@ -23,6 +24,7 @@ public class PlacedObject : MonoBehaviour
     private PlaceableScriptableObject.Dir dir;
     private Vector3 originalScale;
     private int cellScale; //grid sizes are gonna be 8x10, 16x20, etc.  cellScale will just be 1, 2, etc to correspond with grid scale
+    public List<PlaceableAction> ActionList { get; private set; }
 
     public List<Vector2Int> GetGridPositionList() {
         return placeableType.GetGridPositionList(origin, dir, cellScale);
@@ -43,5 +45,25 @@ public class PlacedObject : MonoBehaviour
 
     public string GetObjectName() {
         return placeableType.nameString;
+    }
+
+    private void BindActions() {
+        //very silly but i wanted to get something working
+        switch (placeableType.nameString) {
+            case "BasicBuilding":
+                BindBasicBuildingActions();
+                break;
+        }
+
+    }
+
+    private void BindBasicBuildingActions() {
+        ActionList = new List<PlaceableAction>();
+
+        BasicBuildingAction firstAction = new BasicBuildingAction(this, "First Action");
+        ActionList.Add(firstAction);
+
+        BasicBuildingAction secondAction = new BasicBuildingAction(this, "Second Action");
+        ActionList.Add(secondAction);
     }
 }

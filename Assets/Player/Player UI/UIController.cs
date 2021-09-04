@@ -5,17 +5,22 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public Button toggleBuildButton;
+    public Text foodSupplyText;
+    public Text waterSupplyText;
 
+    private void Awake() {
+        if(GridBuildingSystem.Instance != null) {
+            toggleBuildButton.onClick.AddListener(GridBuildingSystem.Instance.ToggleActive);
+        }
+        if(VillageManager.Instance != null) {
+            VillageManager.Instance.OnResourceAmountChange += UpdateResourceUI;
+        }
+    }
     
+    void UpdateResourceUI(object sender, VillageManager.OnResourceAmountChangeArgs args) {
+        foodSupplyText.text = "Food Supply: " + args.foodSupply.ToString();
+        waterSupplyText.text = "Water Supply: " + args.waterSupply.ToString();
+    }
 }

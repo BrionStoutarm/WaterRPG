@@ -70,4 +70,6 @@ public class PlaceableScriptableObject : ScriptableObject
         }
         return gridPositionList;
     }
+
+
 }

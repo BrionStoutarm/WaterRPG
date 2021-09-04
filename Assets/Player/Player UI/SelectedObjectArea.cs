@@ -1,27 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SelectedObjectArea : MonoBehaviour {
-
-    public Rect area;
-    public GUILayout guiLayout;
-    // Start is called before the first frame update
-    void Start()
-    {
-
+    public Text selectedObjectText;
+    public LayoutGroup layoutGroup;
+    public SelectedObjectActionUIElement actionPrefab;
+    List<SelectedObjectActionUIElement> selectedObjectActions;
+    private void Awake() {
+        selectedObjectActions = new List<SelectedObjectActionUIElement>();
     }
 
-    private void OnGUI() {
-        GUI.BeginGroup(area);
-        GUI.Box(new Rect(0, 0, 100, 100), "Group is here");
-        GUI.Button(new Rect(10, 40, 80, 30), "Click me");
-        GUI.EndGroup();
-    }
+    public void UpdateUI(PlacedObject placedObject) {
+        ClearActionElements();
 
-    // Update is called once per frame
-    void Update()
-    {
+        selectedObjectText.text = placedObject.GetObjectName();
+        foreach (PlaceableAction action in placedObject.ActionList) {
+            SelectedObjectActionUIElement newAction = Instantiate(actionPrefab, layoutGroup.transform);
+            newAction.SetProperties(action.ActionName, action.ActionActivate);
+            selectedObjectActions.Add(newAction);
+        }
         
+    }
+
+    public void Clear() {
+        ClearActionElements();
+        ResetText();
+    }
+
+    private void ResetText() {
+        selectedObjectText.text = "";
+    }
+
+    private void ClearActionElements() {
+        if(selectedObjectActions.Count != 0) {
+            foreach(SelectedObjectActionUIElement uiElement in selectedObjectActions) {
+                Destroy(uiElement.gameObject);
+            }
+        }
+        selectedObjectActions.Clear();
     }
 }

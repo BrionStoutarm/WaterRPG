@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,13 @@ public class VillageManager : MonoBehaviour
     public int waterConsumptionModifier = 2;
 
     public GameObject villagerPrefab;
+
+    public event EventHandler<OnResourceAmountChangeArgs> OnResourceAmountChange;
+    public class OnResourceAmountChangeArgs : EventArgs {
+        public int foodSupply;
+        public int waterSupply;
+        //more to come
+    }
 
     private static VillageManager s_instance;
     public static VillageManager Instance {
@@ -51,8 +59,8 @@ public class VillageManager : MonoBehaviour
     void ConsumeVillagerResources() {
         foodSupply -= villagerList.Count * foodConsumptionModifier;
         waterSupply -= villagerList.Count * waterConsumptionModifier;
-
-        UpdateUI();
+        if(OnResourceAmountChange != null) { OnResourceAmountChange(this, new OnResourceAmountChangeArgs { foodSupply = foodSupply, waterSupply = waterSupply });  }
+        //UpdateUI();
     }
 
     void UpdateUI() {
