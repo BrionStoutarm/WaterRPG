@@ -13,8 +13,6 @@ public class Villager : MonoBehaviour
     {
         goal = null;
         navMeshAgent = GetComponent<NavMeshAgent>();
-
-        GridBuildingSystem.Instance.OnPlacedBuilding += HandlePlacedBuilding;
     }
 
     // Update is called once per frame
@@ -26,8 +24,8 @@ public class Villager : MonoBehaviour
         }
     }
 
-    private void HandlePlacedBuilding(object sender, GridBuildingSystem.OnPlacedBuildingArgs args) {
-        goal = args.placedObject.transform;
+    public void Assign(Transform goal) {
+        SetDestination(goal);
     }
 
     private void SetDestination(Transform destination) {

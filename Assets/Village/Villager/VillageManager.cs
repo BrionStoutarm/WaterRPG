@@ -12,12 +12,14 @@ public class VillageManager : MonoBehaviour {
     public int woodSupply { get; private set; } 
     public int metalSupply { get; private set; }
 
-    public List<GameObject> villagerList;
+    public Villager villagerPrefab;
+    public List<Villager> villagerList;
+
+    private Queue<Villager> inactiveVillagers;
 
     public int foodConsumptionModifier = 1;
     public int waterConsumptionModifier = 2;
 
-    public GameObject villagerPrefab;
 
     public event EventHandler<OnResourceAmountChangeArgs> OnResourceAmountChange;
     public class OnResourceAmountChangeArgs : EventArgs {
@@ -39,7 +41,8 @@ public class VillageManager : MonoBehaviour {
     }
 
     private void Awake() {
-        villagerList = new List<GameObject>();
+        villagerList = new List<Villager>();
+        inactiveVillagers = new Queue<Villager>();
         s_instance = this;
         foodSupply = startFoodSupply;
         woodSupply = startWoodSupply;
@@ -64,8 +67,19 @@ public class VillageManager : MonoBehaviour {
     }
 
     public static void CreateVillager() {
-        GameObject villager = Instantiate(s_instance.villagerPrefab, new Vector3(0, 14, 0), Quaternion.identity);
+        Villager villager = Instantiate(s_instance.villagerPrefab, new Vector3(0, 14, 0), Quaternion.identity);
         s_instance.villagerList.Add(villager);
+        Instance.inactiveVillagers.Enqueue(villager);
+    }
+
+    //will be triggered by a button on each building 
+    public void AssignVillagers(int numberOfVillagers, Transform goal) {
+        for(int i = 0; i < numberOfVillagers; i++) {
+            if (inactiveVillagers.Count == 0)
+                break;
+            Villager villager = inactiveVillagers.Dequeue();
+            villager.Assign(goal);
+        }
     }
 
     void ConsumeVillagerResources() {
@@ -80,6 +94,9 @@ public class VillageManager : MonoBehaviour {
         waterSupply -= args.placedObject.GetBuildingType().waterCost;
         woodSupply -= args.placedObject.GetBuildingType().woodCost;
         metalSupply -= args.placedObject.GetBuildingType().metalCost;
+
+        AssignVillagers(1, args.placedObject.transform);
+
         if (OnResourceAmountChange != null) { OnResourceAmountChange(this, new OnResourceAmountChangeArgs { foodSupply = foodSupply, waterSupply = waterSupply, woodSupply = woodSupply, metalSupply = metalSupply }) ; }
     }
 
