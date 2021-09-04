@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName ="BuildingScriptableObject", menuName ="ScriptableObjects/BuildingType")]
+[CreateAssetMenu(fileName = "PlaceableScriptableObject", menuName ="ScriptableObjects/PlaceableType")]
 public class PlaceableScriptableObject : ScriptableObject
 {
     public static Dir GetNextDir(Dir dir) {

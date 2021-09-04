@@ -7,8 +7,8 @@ using UnityEngine.Rendering;
 
 public class GridBuildingSystem : MonoBehaviour
 {
-    [SerializeField] private List<PlaceableScriptableObject> buildingTypeList;
-    private PlaceableScriptableObject currentPlaceBuilding;
+    [SerializeField] private List<BuildingPlaceableScriptableObject> buildingTypeList;
+    private BuildingPlaceableScriptableObject currentPlaceBuilding;
 
     private Deck activeDeck;
     private int activeGridScale = 1;
@@ -29,7 +29,7 @@ public class GridBuildingSystem : MonoBehaviour
     //temporary i think, for villager testing purposes
     public event EventHandler<OnPlacedBuildingArgs> OnPlacedBuilding;
     public class OnPlacedBuildingArgs : EventArgs {
-        public PlacedObject placedObject; //should subclass this to be a building, as there will be more placeable objects
+        public BuildingPlacedObject placedObject; //should subclass this to be a building, as there will be more placeable objects
     }
 
     private bool m_isActive = false;
@@ -168,7 +168,7 @@ public class GridBuildingSystem : MonoBehaviour
                     Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir, activeDeck.DeckScale());
                     Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
 
-                    PlacedObject placedObject = PlacedObject.Create(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
+                    BuildingPlacedObject placedObject = BuildingPlacedObject.CreateBuilding(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
 
                     if(OnPlacedBuilding != null) { OnPlacedBuilding(this, new OnPlacedBuildingArgs { placedObject = placedObject }); }
 
