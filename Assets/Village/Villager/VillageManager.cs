@@ -49,12 +49,12 @@ public class VillageManager : MonoBehaviour {
         waterSupply = startWaterSupply;
         metalSupply = startMetalSupply;
         GridBuildingSystem.Instance.OnPlacedBuilding += HandlePlacedBuilding;
+        GameManager.Instance.TimeStepEvent += ConsumeVillagerResources;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("ConsumeVillagerResources", 0.0f, 10f);
         CreateVillager();
         CreateVillager();
         CreateVillager();
@@ -82,10 +82,10 @@ public class VillageManager : MonoBehaviour {
         }
     }
 
-    void ConsumeVillagerResources() {
+    void ConsumeVillagerResources(object sender, GameManager.TimeStepArgs args) {
         foodSupply -= villagerList.Count * foodConsumptionModifier;
         waterSupply -= villagerList.Count * waterConsumptionModifier;
-        if(OnResourceAmountChange != null) { OnResourceAmountChange(this, new OnResourceAmountChangeArgs { foodSupply = foodSupply, waterSupply = waterSupply });  }
+        if(OnResourceAmountChange != null) { OnResourceAmountChange(this, new OnResourceAmountChangeArgs { foodSupply = foodSupply, waterSupply = waterSupply , metalSupply = metalSupply, woodSupply = woodSupply});  }
         //UpdateUI();
     }
 

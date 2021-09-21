@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,6 +35,10 @@ public class GameManager : MonoBehaviour
                 s_instance = value; 
         }
     }
+
+    public event EventHandler<TimeStepArgs> TimeStepEvent;
+    public class TimeStepArgs : EventArgs { }
+
     void Awake()
     {
         if (s_instance != null)
@@ -47,6 +52,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        InvokeRepeating("TriggerTimeStep", 0.0f, 10f);
+
         //m_mainCamera = GameObject.FindObjectOfType<FollowCamera>();
         //if (m_playerBoat)
         //{
@@ -58,7 +65,14 @@ public class GameManager : MonoBehaviour
         //    ConstructWindGauge();
         //}
     }
-    
+
+    //Triggers the timestep event that other objects will listen to
+    private void TriggerTimeStep() {
+        if(TimeStepEvent != null) {
+            TimeStepEvent(this, new TimeStepArgs { });
+        }
+    }
+
     public bool OnDebug() {
         return m_debugMode;
     }

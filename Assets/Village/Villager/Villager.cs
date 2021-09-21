@@ -7,6 +7,7 @@ public class Villager : MonoBehaviour
 {
     private NavMeshAgent navMeshAgent;
     public Transform goal;
+    public Transform homeLocation;
 
     // Start is called before the first frame update
     void Start()
@@ -24,11 +25,34 @@ public class Villager : MonoBehaviour
         }
     }
 
-    public void Assign(Transform goal) {
+    private void DoTask() {
+        
+    }
+
+    // Assign will have a task as well
+    public void Assign(Transform goal/*, Task task*/) {
         SetDestination(goal);
     }
 
     private void SetDestination(Transform destination) {
         navMeshAgent.destination = destination.position;
+    }
+
+    public class Task {
+        string name;
+        float duration;
+        Transform location;
+        Villager worker;
+
+        public Task(string name, float duration, Transform location, Villager worker) {
+            this.name = name;
+            this.duration = duration;
+            this.location = location;
+            this.worker = worker;
+        }
+
+        public virtual void DoTask() {
+            worker.Assign(location);
+        }
     }
 }
