@@ -14,7 +14,6 @@ public partial class BoatManager : MonoBehaviour
     //public GameObject middleDeckObject;
     //public GameObject bottomDeckObject;
 
-
     private static BoatManager s_instance;
     public static BoatManager Instance {
         get => s_instance;
@@ -36,17 +35,25 @@ public partial class BoatManager : MonoBehaviour
     }
 
     private void Instance_OnDownEvent(object sender, PlayerInput.OnDownArrowArgs e) {
-        Deck nextDeck = boatObject.GetNextBelowDeck();
+        Deck nextDeck = boatObject.SetNextBelowDeck();
         if(nextDeck != null) {
             GridBuildingSystem.Instance.SetActiveGrid(nextDeck);
         }
     }
 
     private void Instance_OnUpArrowEvent(object sender, PlayerInput.OnUpArrowArgs e) {
-        Deck nextDeck = boatObject.GetNextAboveDeck();
+        Deck nextDeck = boatObject.SetNextAboveDeck();
         if (nextDeck != null) {
             GridBuildingSystem.Instance.SetActiveGrid(nextDeck);
         }
+    }
+
+    public Deck NextBelowDeck() {
+        return boatObject.GetNextBelowDeck();
+    }
+
+    public Deck NextAboveDeck() {
+        return boatObject.GetNextAboveDeck();
     }
 
     // Start is called before the first frame update
@@ -72,6 +79,7 @@ public partial class BoatManager : MonoBehaviour
         //deckList[2] = botDeck;
         //botDeck.SetVisible(false);
         boatObject.InitializeBoat();
+        boatObject.GetDeck(0).SetVisible(true);
         GridBuildingSystem.Instance.SetActiveGrid(boatObject.GetDeck(0));
     }
 

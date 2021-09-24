@@ -10,7 +10,7 @@ public class BuildingGhost : MonoBehaviour
     private void Start() {
         //RefreshVisual();
 
-        GridBuildingSystem.Instance.OnSelectedChanged += Instance_OnSelectedChanged;
+        GridBuildingSystem.Instance.OnSelectedBuildingChanged += Instance_OnSelectedChanged;
         GridBuildingSystem.Instance.OnBuildingSysActive += Instance_OnBuildingSysActive;
     }
 

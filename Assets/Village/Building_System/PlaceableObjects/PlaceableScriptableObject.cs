@@ -27,6 +27,8 @@ public class PlaceableScriptableObject : ScriptableObject
     public int width;
     public int height;
 
+    public bool isMultiDeck;
+    public int additionalDecks;
     public int GetRotationAngle(Dir dir) {
         switch(dir) {
             default:

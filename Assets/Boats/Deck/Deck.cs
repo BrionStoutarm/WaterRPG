@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class Deck {
@@ -8,10 +9,14 @@ public class Deck {
 
     private GameObject deckObject;
     private Vector3 originalScale;
+
+    private List<GameObject> objectsOnDeck;
+
     public Deck(Grid<GridObject> grid, GameObject obj) {
         deckGrid = grid;
         deckObject = obj;
         originalScale = obj.transform.localScale;
+        objectsOnDeck = new List<GameObject>();
     }
 
     public Deck(GameObject deckObject, Vector2Int gridSize, int gridScale) {
@@ -27,6 +32,15 @@ public class Deck {
         this.deckObject = deckObject;
         originalScale = deckObject.transform.localScale;
         this.gridScale = gridScale;
+        objectsOnDeck = new List<GameObject>();
+    }
+
+    public void AddObject(GameObject gameObject) {
+        objectsOnDeck.Add(gameObject);
+    }
+
+    public void RemoveObject(GameObject gameObject) {
+        objectsOnDeck.Remove(gameObject);
     }
 
     public int DeckScale() {
@@ -43,9 +57,15 @@ public class Deck {
     public void SetVisible(bool isVisible) {
         if (isVisible) {
             deckObject.transform.localScale = originalScale;
+            foreach (GameObject obj in objectsOnDeck) {
+                obj.transform.localScale = Vector3.one;
+            }
         }
         else {
             deckObject.transform.localScale = Vector3.zero;
+            foreach (GameObject obj in objectsOnDeck) {
+                obj.transform.localScale = Vector3.zero;
+            }
         }
         GridBuildingSystem.Instance.SetDeckVisible(isVisible, deckGrid);
     }

@@ -13,7 +13,7 @@ public class BoatObject : MonoBehaviour {
     public GameObject[] deckObjects;
     public GridSize[] gridSizes;
 
-    private List<Deck> deckData;
+    private List<Deck> decks;
     private int currentDeck = 0;
 
     private void Start() {
@@ -21,40 +21,58 @@ public class BoatObject : MonoBehaviour {
     }
 
     public void InitializeBoat() {
-        deckData = new List<Deck>();
+        decks = new List<Deck>();
 
         for (int i = 0; i < deckObjects.Length; i++) {
             GameObject deckObject = deckObjects[i];
             Vector2Int gridSize = new Vector2Int(gridSizes[i].width, gridSizes[i].height);
             int gridScale = gridSizes[i].gridScale;
-            deckData.Add(new Deck(deckObject, gridSize, gridScale));
+
+            Deck newDeck = new Deck(deckObject, gridSize, gridScale);
+            decks.Add(newDeck);
+            newDeck.SetVisible(false);
         }
     }
 
     public Deck GetDeck(int deckNumber) {
-        return deckData[deckNumber];
+        return decks[deckNumber];
     }
 
     public Deck GetNextAboveDeck() {
         if (currentDeck != 0) {
-            int prevDeck = currentDeck;
-            currentDeck--;
-            deckData[currentDeck].SetVisible(true);
-            deckData[prevDeck].SetVisible(false);
 
-            return deckData[currentDeck];
+            return decks[currentDeck--];
         }
         return null;
     }
 
+    public Deck SetNextAboveDeck() {
+        if (currentDeck != 0) {
+            int prevDeck = currentDeck;
+            currentDeck--;
+            decks[currentDeck].SetVisible(true);
+            decks[prevDeck].SetVisible(false);
+
+            return decks[currentDeck];
+        }
+        return null;
+    }
     public Deck GetNextBelowDeck() {
-        if (currentDeck != deckData.Count - 1) {
+        if (currentDeck != decks.Count - 1) {
+
+            return decks[++currentDeck];
+        }
+        return null;
+    }
+
+    public Deck SetNextBelowDeck() {
+        if (currentDeck != decks.Count - 1) {
             int prevDeck = currentDeck;
             currentDeck++;
-            deckData[currentDeck].SetVisible(true);
-            deckData[prevDeck].SetVisible(false);
+            decks[currentDeck].SetVisible(true);
+            decks[prevDeck].SetVisible(false);
 
-            return deckData[currentDeck];
+            return decks[currentDeck];
         }
         return null;
     }

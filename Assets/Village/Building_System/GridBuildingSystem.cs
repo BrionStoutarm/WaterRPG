@@ -14,12 +14,10 @@ public class GridBuildingSystem : MonoBehaviour
     private int activeGridScale = 1;
     private PlaceableScriptableObject.Dir dir = PlaceableScriptableObject.Dir.Down;
 
-    public GameManager gameManager;
-
     private static GridBuildingSystem s_instance;
 
-    public event EventHandler<OnSelectedChangedEventArgs> OnSelectedChanged;
-    public class OnSelectedChangedEventArgs : EventArgs { }
+    public event EventHandler<OnSelectedBuildingChangedArgs> OnSelectedBuildingChanged;
+    public class OnSelectedBuildingChangedArgs : EventArgs { }
 
     public event EventHandler<OnBuildingSysActiveArgs> OnBuildingSysActive;
     public class OnBuildingSysActiveArgs : EventArgs {
@@ -29,7 +27,7 @@ public class GridBuildingSystem : MonoBehaviour
     //temporary i think, for villager testing purposes
     public event EventHandler<OnPlacedBuildingArgs> OnPlacedBuilding;
     public class OnPlacedBuildingArgs : EventArgs {
-        public BuildingPlacedObject placedObject; //should subclass this to be a building, as there will be more placeable objects
+        public BuildingPlaceableScriptableObject placedObject; //should subclass this to be a building, as there will be more placeable objects
     }
 
     private bool m_isActive = false;
@@ -73,10 +71,6 @@ public class GridBuildingSystem : MonoBehaviour
         GridObject gridObject = activeDeck.DeckGrid().GetGridObject(x, z);
         PlacedObject placedObject = gridObject.GetPlacedObject();
         return placedObject;
-    }
-
-    public void SetActiveGrid(int gridScale) {
-        activeGridScale = gridScale;
     }
 
     public void SetActiveGrid(Deck activeDeck) {
@@ -168,13 +162,35 @@ public class GridBuildingSystem : MonoBehaviour
                     Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir, activeDeck.DeckScale());
                     Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
 
-                    BuildingPlacedObject placedObject = BuildingPlacedObject.CreateBuilding(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
+                    if (currentPlaceBuilding.isMultiDeck) {
+                        BuildingPlacedObject placedObject = BuildingPlacedObject.CreateBuilding(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
+                        activeDeck.AddObject(placedObject.gameObject);
 
-                    if(OnPlacedBuilding != null) { OnPlacedBuilding(this, new OnPlacedBuildingArgs { placedObject = placedObject }); }
+                        foreach (Vector2Int gridPosition in gridPositionList) {
+                            activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                        }
 
-                    foreach (Vector2Int gridPosition in gridPositionList) {
-                        activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                        //will have option to switch direction of the stairs, for now only going down
+                        Deck belowDeck = BoatManager.Instance.NextBelowDeck();
+                        if (belowDeck != null) {
+                            Vector3 objectBelowDeckPosition = belowDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
+                            BuildingPlacedObject belowObject = BuildingPlacedObject.CreateBuilding(objectBelowDeckPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
+                            belowDeck.AddObject(belowObject.gameObject);
+
+                            foreach (Vector2Int gridPosition in gridPositionList) {
+                                belowDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(belowObject);
+                            }
+                        }
                     }
+                    else {
+                        BuildingPlacedObject placedObject = BuildingPlacedObject.CreateBuilding(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
+
+                        foreach (Vector2Int gridPosition in gridPositionList) {
+                            activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                        }
+                    }
+
+                    if (OnPlacedBuilding != null) { OnPlacedBuilding(this, new OnPlacedBuildingArgs { placedObject = currentPlaceBuilding }); }
                 }
                 else {
                     //StaticFunctions.CreateWorldTextPopup("Cannot build here!", hitPoint);
@@ -222,15 +238,19 @@ public class GridBuildingSystem : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.Alpha1)) { 
             currentPlaceBuilding = buildingTypeList[0]; 
-            if (OnSelectedChanged != null) OnSelectedChanged(this, new OnSelectedChangedEventArgs { });
+            if (OnSelectedBuildingChanged != null) OnSelectedBuildingChanged(this, new OnSelectedBuildingChangedArgs { });
         }
         if (Input.GetKeyDown(KeyCode.Alpha2)) { 
             currentPlaceBuilding = buildingTypeList[1];
-            if (OnSelectedChanged != null) OnSelectedChanged(this, new OnSelectedChangedEventArgs { });
+            if (OnSelectedBuildingChanged != null) OnSelectedBuildingChanged(this, new OnSelectedBuildingChangedArgs { });
         }
         if (Input.GetKeyDown(KeyCode.Alpha3)) { 
             currentPlaceBuilding = buildingTypeList[2];
-            if (OnSelectedChanged != null) OnSelectedChanged(this, new OnSelectedChangedEventArgs { });
+            if (OnSelectedBuildingChanged != null) OnSelectedBuildingChanged(this, new OnSelectedBuildingChangedArgs { });
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4)) {
+            currentPlaceBuilding = buildingTypeList[3];
+            if (OnSelectedBuildingChanged != null) OnSelectedBuildingChanged(this, new OnSelectedBuildingChangedArgs { });
         }
     }
 
