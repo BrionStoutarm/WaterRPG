@@ -11,6 +11,7 @@ public class Deck {
     private Vector3 originalScale;
 
     private List<GameObject> objectsOnDeck;
+    private bool isVisible;
 
     public Deck(Grid<GridObject> grid, GameObject obj) {
         deckGrid = grid;
@@ -33,6 +34,7 @@ public class Deck {
         originalScale = deckObject.transform.localScale;
         this.gridScale = gridScale;
         objectsOnDeck = new List<GameObject>();
+        isVisible = false;
     }
 
     public void AddObject(GameObject gameObject) {
@@ -54,7 +56,12 @@ public class Deck {
         return deckObject;
     }
 
-    public void SetVisible(bool isVisible) {
+    public bool IsVisible() {
+        return isVisible;
+    }
+
+    public void SetVisible(bool vis) {
+        this.isVisible = vis;
         if (isVisible) {
             deckObject.transform.localScale = originalScale;
             foreach (GameObject obj in objectsOnDeck) {

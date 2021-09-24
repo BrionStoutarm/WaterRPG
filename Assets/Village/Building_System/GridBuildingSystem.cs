@@ -171,11 +171,12 @@ public class GridBuildingSystem : MonoBehaviour
                         }
 
                         //will have option to switch direction of the stairs, for now only going down
-                        Deck belowDeck = BoatManager.Instance.NextBelowDeck();
+                        Deck belowDeck = BoatManager.Instance.GetNextBelowDeck();
                         if (belowDeck != null) {
                             Vector3 objectBelowDeckPosition = belowDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
                             BuildingPlacedObject belowObject = BuildingPlacedObject.CreateBuilding(objectBelowDeckPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
                             belowDeck.AddObject(belowObject.gameObject);
+                            belowObject.SetVisible(belowDeck.IsVisible());
 
                             foreach (Vector2Int gridPosition in gridPositionList) {
                                 belowDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(belowObject);

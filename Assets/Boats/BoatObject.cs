@@ -14,7 +14,6 @@ public class BoatObject : MonoBehaviour {
     public GridSize[] gridSizes;
 
     private List<Deck> decks;
-    private int currentDeck = 0;
 
     private void Start() {
 
@@ -32,48 +31,14 @@ public class BoatObject : MonoBehaviour {
             decks.Add(newDeck);
             newDeck.SetVisible(false);
         }
+        decks[0].SetVisible(true);
     }
 
     public Deck GetDeck(int deckNumber) {
         return decks[deckNumber];
     }
 
-    public Deck GetNextAboveDeck() {
-        if (currentDeck != 0) {
-
-            return decks[currentDeck--];
-        }
-        return null;
-    }
-
-    public Deck SetNextAboveDeck() {
-        if (currentDeck != 0) {
-            int prevDeck = currentDeck;
-            currentDeck--;
-            decks[currentDeck].SetVisible(true);
-            decks[prevDeck].SetVisible(false);
-
-            return decks[currentDeck];
-        }
-        return null;
-    }
-    public Deck GetNextBelowDeck() {
-        if (currentDeck != decks.Count - 1) {
-
-            return decks[++currentDeck];
-        }
-        return null;
-    }
-
-    public Deck SetNextBelowDeck() {
-        if (currentDeck != decks.Count - 1) {
-            int prevDeck = currentDeck;
-            currentDeck++;
-            decks[currentDeck].SetVisible(true);
-            decks[prevDeck].SetVisible(false);
-
-            return decks[currentDeck];
-        }
-        return null;
+    public int GetNumDecks() {
+        return decks.Count;
     }
 }
