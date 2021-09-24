@@ -6,4 +6,5 @@ using UnityEngine;
 public class BuildingPlaceableScriptableObject : PlaceableScriptableObject
 {
     public int woodCost, metalCost, waterCost, foodCost;
+    public int weight;
 }

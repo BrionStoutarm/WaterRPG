@@ -39,6 +39,7 @@ public class Deck {
 
     public void AddObject(GameObject gameObject) {
         objectsOnDeck.Add(gameObject);
+        gameObject.transform.parent = deckObject.transform;
     }
 
     public void RemoveObject(GameObject gameObject) {

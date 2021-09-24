@@ -28,6 +28,7 @@ public class GridBuildingSystem : MonoBehaviour
     public event EventHandler<OnPlacedBuildingArgs> OnPlacedBuilding;
     public class OnPlacedBuildingArgs : EventArgs {
         public BuildingPlaceableScriptableObject placedObject; //should subclass this to be a building, as there will be more placeable objects
+        public Vector2Int gridPosition;
     }
 
     private bool m_isActive = false;
@@ -191,7 +192,7 @@ public class GridBuildingSystem : MonoBehaviour
                         }
                     }
 
-                    if (OnPlacedBuilding != null) { OnPlacedBuilding(this, new OnPlacedBuildingArgs { placedObject = currentPlaceBuilding }); }
+                    if (OnPlacedBuilding != null) { OnPlacedBuilding(this, new OnPlacedBuildingArgs { placedObject = currentPlaceBuilding, gridPosition =  new Vector2Int(x, z)}); }
                 }
                 else {
                     //StaticFunctions.CreateWorldTextPopup("Cannot build here!", hitPoint);

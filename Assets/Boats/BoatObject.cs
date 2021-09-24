@@ -41,4 +41,17 @@ public class BoatObject : MonoBehaviour {
     public int GetNumDecks() {
         return decks.Count;
     }
+
+    //how much it should rotate and gridPos to determine which direction should rotate
+    public void RotateBoat(int weight, Vector2Int gridPos) {
+        //Port side
+        if(gridPos.x <= gridSizes[0].width / 2) {
+            transform.Rotate(new Vector3(0, 0, -1), BoatManager.Instance.rotationFactor * weight);
+        }
+
+        //Starboard side
+        else {
+            transform.Rotate(new Vector3(0, 0, 1), BoatManager.Instance.rotationFactor * weight);
+        }
+    }
 }
