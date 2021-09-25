@@ -106,7 +106,7 @@ public partial class BoatManager : MonoBehaviour {
         boatObject.InitializeBoat();
         GridBuildingSystem.Instance.SetActiveGrid(boatObject.GetDeck(0));
 
-        GridBuildingSystem.Instance.OnPlacedBuilding += Instance_OnBuildingPlacedEvent;
+        GridBuildingSystem.Instance.OnPlacedBuilding += Instance_OnBuildingPlacedEvent;//load order needs to be fixed
     }
 
     // Update is called once per frame

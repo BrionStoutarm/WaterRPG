@@ -39,7 +39,9 @@ public class Deck {
 
     public void AddObject(GameObject gameObject) {
         objectsOnDeck.Add(gameObject);
-        gameObject.transform.SetParent(deckObject.transform);
+        Quaternion origRotation = gameObject.transform.localRotation;
+        gameObject.transform.SetParent(BoatManager.Instance.boatObject.transform);
+        gameObject.transform.localRotation = origRotation;
     }
 
     public void RemoveObject(GameObject gameObject) {

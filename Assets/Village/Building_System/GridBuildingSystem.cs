@@ -136,7 +136,7 @@ public class GridBuildingSystem : MonoBehaviour
             if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit)) {
                 Debug.Log(hit.point);
                 Vector3 hitPoint = hit.point;
-                hitPoint.y = 0f;
+                //hitPoint.y = 0f;
 
                 activeDeck.DeckGrid().GetXZ(hitPoint, out int x, out int z);
 
@@ -160,11 +160,14 @@ public class GridBuildingSystem : MonoBehaviour
 
                 GridObject gridObject = activeDeck.DeckGrid().GetGridObject(x, z);
                 if (canBuild) {
-                    Vector2Int rotationOffset = currentPlaceBuilding.GetRotationOffset(dir, activeDeck.DeckScale());
-                    Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
+                    Vector2Int buildingRotationOffset = currentPlaceBuilding.GetRotationOffset(dir, activeDeck.DeckScale());
+                    Quaternion boatRotationOffset = BoatManager.Instance.boatObject.transform.rotation;
+                    Vector3 placeObjectWorldPosition = activeDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(buildingRotationOffset.x, 0, buildingRotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
+                    placeObjectWorldPosition.y = hitPoint.y;
 
                     if (currentPlaceBuilding.isMultiDeck) {
                         BuildingPlacedObject placedObject = BuildingPlacedObject.CreateBuilding(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
+                        //placedObject.transform.rotation = boatRotationOffset;
                         activeDeck.AddObject(placedObject.gameObject);
 
                         foreach (Vector2Int gridPosition in gridPositionList) {
@@ -174,7 +177,7 @@ public class GridBuildingSystem : MonoBehaviour
                         //will have option to switch direction of the stairs, for now only going down
                         Deck belowDeck = BoatManager.Instance.GetNextBelowDeck();
                         if (belowDeck != null) {
-                            Vector3 objectBelowDeckPosition = belowDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
+                            Vector3 objectBelowDeckPosition = belowDeck.DeckGrid().GetWorldPosition(x, z) + new Vector3(buildingRotationOffset.x, 0, buildingRotationOffset.y) * activeDeck.DeckGrid().GetCellSize();
                             BuildingPlacedObject belowObject = BuildingPlacedObject.CreateBuilding(objectBelowDeckPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
                             belowDeck.AddObject(belowObject.gameObject);
                             belowObject.SetVisible(belowDeck.IsVisible());
@@ -186,7 +189,7 @@ public class GridBuildingSystem : MonoBehaviour
                     }
                     else {
                         BuildingPlacedObject placedObject = BuildingPlacedObject.CreateBuilding(placeObjectWorldPosition, new Vector2Int(x, z), dir, currentPlaceBuilding, activeGridScale);
-
+                        activeDeck.AddObject(placedObject.gameObject);
                         foreach (Vector2Int gridPosition in gridPositionList) {
                             activeDeck.DeckGrid().GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
                         }
