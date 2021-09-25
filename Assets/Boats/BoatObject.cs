@@ -45,13 +45,13 @@ public class BoatObject : MonoBehaviour {
     //how much it should rotate and gridPos to determine which direction should rotate
     public void RotateBoat(int weight, Vector2Int gridPos) {
         //Port side
-        if(gridPos.x <= gridSizes[0].width / 2) {
-            transform.Rotate(new Vector3(0, 0, -1), BoatManager.Instance.rotationFactor * weight);
+        if(gridPos.x <= gridSizes[0].width * gridSizes[0].gridScale / 2) {
+            transform.Rotate(new Vector3(0, 0, 1), BoatManager.Instance.rotationFactor * weight);
         }
 
         //Starboard side
         else {
-            transform.Rotate(new Vector3(0, 0, 1), BoatManager.Instance.rotationFactor * weight);
+            transform.Rotate(new Vector3(0, 0, -1), BoatManager.Instance.rotationFactor * weight);
         }
     }
 }
